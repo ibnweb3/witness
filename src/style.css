@@ -181,3 +181,7 @@ figure.photo figcaption { font-size: .78rem; color: var(--muted); margin-top: 8p
 .preview-slot { margin-top: 10px; }
 
 .remote-video { max-width: 100%; max-height: 420px; display: block; margin: 10px 0; border-radius: 6px; background: #000; }
+
+.card-art .bg-blur { position: absolute; inset: -30px; background-size: cover; background-position: center; filter: blur(18px) saturate(.9); pointer-events: none; }
+.remote-img.blurred { filter: blur(24px); }
+.preview-slot { overflow: hidden; border-radius: 6px; }

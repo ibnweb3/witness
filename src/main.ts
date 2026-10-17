@@ -120,8 +120,10 @@ const titleOf = (r: Entity) => (av(r, 'sealed') === true ? 'Sealed report (encry
 
 function card(r: Entity, st: Status, size: 'hero' | 'mid' | 'small') {
   const cat = String(av(r, 'category'))
-  // A stranger's picture is shown on the homepage only after the council has verified the report.
-  const img = st === 'verified' ? previewSrc(decode(r)?.preview) : null
+  // A stranger's picture is sharp on the homepage only once the council has verified the report. Until then it is
+  // blurred (so the post is visibly there), and a disputed report's picture is not shown at all.
+  const img = st === 'disputed' ? null : previewSrc(decode(r)?.preview)
+  const clear = st === 'verified'
   const el = h('a', { class: `card-art ${size} cat-${cat}${img ? ' has-img' : ''}`, href: `#/r/${r.key}` },
     h('span', { class: 'shade', 'aria-hidden': 'true' }),
     h('span', { class: 'cap' },
@@ -131,9 +133,11 @@ function card(r: Entity, st: Status, size: 'hero' | 'mid' | 'small') {
         av(r, 'sealed') === true && h('span', { class: 'badge' }, 'encrypted'),
         isLocked(r) && h('span', { class: 'badge' }, 'locked'),
         h('span', { class: `badge ${STATUS_CLASS[st]}` }, STATUS_TEXT[st]),
+        img && !clear ? h('span', { class: 'badge' }, 'image blurred until verified') : null,
         av(r, 'media_hash') ? h('span', { class: 'badge' }, 'file fingerprint') : null),
       h('span', { class: 'by' }, `By ${short(r.creator as string)} / ${dateStr(Number(av(r, 'incident_ms')))} / ${expiresIn(r.expiresAt as bigint)}`)))
-  if (img) { el.style.backgroundImage = `url("${img}")`; el.style.backgroundSize = 'cover'; el.style.backgroundPosition = 'center' }
+  if (img && clear) { el.style.backgroundImage = `url("${img}")`; el.style.backgroundSize = 'cover'; el.style.backgroundPosition = 'center' }
+  if (img && !clear) { const bg = h('span', { class: 'bg-blur', 'aria-hidden': 'true' }); bg.style.backgroundImage = `url("${img}")`; el.prepend(bg) }
   return el
 }
 const thumb = (r: Entity) => h('span', { class: `thumb art cat-${av(r, 'category')}`, 'aria-hidden': 'true' })
@@ -253,12 +257,21 @@ async function fetchLimited(url: string, limit: number): Promise<Uint8Array<Arra
 
 function previewCard(src: string, status: Status, hasFingerprint: boolean, isVideo: boolean) {
   const slot = h('div', { class: 'preview-slot' })
-  const reveal = () => slot.replaceChildren(h('img', { src, class: 'remote-img', alt: 'Preview image stored in this report' }))
-  const note = status === 'verified' ? 'Stored on Arkiv with this report, which at least two reviewers have corroborated.'
-    : status === 'disputed' ? 'A reviewer disputes this report, so treat the image with caution. It is hidden until you choose to show it.'
-    : 'This report is not verified, so the image is hidden until you choose to show it.'
-  if (status === 'verified') reveal()
-  const btn = status === 'verified' ? null : h('button', { class: 'ghost', onclick: () => { reveal(); btn?.remove() } }, 'Show the image anyway')
+  const alt = isVideo ? 'Still frame from the video stored in this report' : 'Preview image stored in this report'
+  let btn: HTMLElement | null = null
+  let note: string
+  if (status === 'verified') {
+    note = 'Stored on Arkiv with this report, which at least two reviewers have corroborated.'
+    slot.replaceChildren(h('img', { src, class: 'remote-img', alt }))
+  } else if (status === 'disputed') {
+    note = 'A reviewer disputes this report, so treat the picture with caution. It is hidden until you choose to show it.'
+    btn = h('button', { class: 'ghost', onclick: () => { slot.replaceChildren(h('img', { src, class: 'remote-img', alt })); btn?.remove() } }, 'Show the image anyway')
+  } else {
+    note = 'This report is not verified, so the picture is blurred until you choose to reveal it.'
+    const img = h('img', { src, class: 'remote-img blurred', alt })
+    slot.replaceChildren(img)
+    btn = h('button', { class: 'ghost', onclick: () => { img.classList.remove('blurred'); btn?.remove() } }, 'Click to reveal the picture')
+  }
   return h('div', { class: 'card' },
     h('h2', { style: 'margin-top:0' }, isVideo ? 'Still frame from the video' : 'Preview image'),
     h('p', { class: 'lede', style: 'margin:0 0 10px' }, note + (isVideo ? ' This is one still frame taken from the video, not the video itself.' : ' It is a shrunk copy with location data removed.') + (hasFingerprint ? ' The fingerprint below belongs to the original file.' : '')),

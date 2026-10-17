@@ -10,7 +10,7 @@ export function mockReports(): { reports: Entity[]; reviews: Map<string, { creat
   const now = Date.now()
   const reports = titles.map((t, i) => {
     const sealed = i === 2
-    const payload: any = sealed ? { v: 1, sealed: true, iv: '', ct: '' } : { v: 1, sealed: false, title: t, body: 'Synthetic demo body.', ...(i === 0 ? { preview: mockPreview() } : {}) }
+    const payload: any = sealed ? { v: 1, sealed: true, iv: '', ct: '' } : { v: 1, sealed: false, title: t, body: 'Synthetic demo body.', ...(i === 0 || i === 3 ? { preview: mockPreview() } : {}) }
     return {
       key: hex(i + 1),
       creator: '0x5d3195C284c27e4e2fC045b5D9eB83959152a088',
