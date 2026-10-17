@@ -22,3 +22,8 @@ export async function sha256Hex(bytes: Uint8Array<ArrayBuffer>): Promise<`0x${st
   const h = new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))
   return ('0x' + [...h].map(x => x.toString(16).padStart(2, '0')).join('')) as `0x${string}`
 }
+
+/** SHA-256 of a chosen file, computed locally. The file is never uploaded anywhere. */
+export async function hashFile(file: File): Promise<`0x${string}`> {
+  return sha256Hex(new Uint8Array(await file.arrayBuffer()))
+}

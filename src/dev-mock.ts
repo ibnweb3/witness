@@ -6,7 +6,7 @@ const cats = ['procurement', 'public_safety', 'environment', 'public_health', 'o
 const titles = ['Synthetic: inflated contract notice', 'Synthetic: road closure log', 'Synthetic: river sampling note', 'Synthetic: clinic stock count', 'Synthetic: tender timeline mismatch', 'Synthetic: bridge inspection record', 'Synthetic: air quality readings', 'Synthetic: ward supply delivery log']
 const hex = (n: number) => '0x' + n.toString(16).padStart(64, '0')
 
-export function mockReports(): { reports: Entity[]; counts: Map<string, number> } {
+export function mockReports(): { reports: Entity[]; reviews: Map<string, { creator: string; verdict: string; at: number }[]>; allow: string[] } {
   const now = Date.now()
   const reports = titles.map((t, i) => {
     const sealed = i === 2
@@ -27,6 +27,8 @@ export function mockReports(): { reports: Entity[]; counts: Map<string, number> 
       toJson: () => payload,
     } as unknown as Entity
   })
-  const counts = new Map<string, number>([[hex(1), 2], [hex(2), 1]])
-  return { reports, counts }
+  const A = '0xaaaa000000000000000000000000000000000001', B = '0xbbbb000000000000000000000000000000000002'
+  const rv = (c: string, v: string) => ({ creator: c, verdict: v, at: 1 })
+  const reviews = new Map([[hex(1), [rv(A, 'corroborated'), rv(B, 'corroborated')]], [hex(2), [rv(A, 'corroborated'), rv(B, 'disputed')]], [hex(3), [rv(A, 'corroborated')]]])
+  return { reports, reviews, allow: [A, B] }
 }

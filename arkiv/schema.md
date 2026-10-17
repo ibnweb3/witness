@@ -28,6 +28,9 @@ Optional "seal": ownership is moved to a burn address in the same batch, so nobo
 | posted_ms | u64 | when it was posted (ms) |
 | sealed | bool | payload is client-side encrypted |
 | content_hash | bytes32 | sha-256 of the payload bytes |
+| media_hash | bytes32 | optional: sha-256 of an attached photo or video file (the file itself is NOT stored on Arkiv) |
+| media_type | str | optional: MIME type of that file, e.g. `image/png` |
+| media_url | str | optional: https link to where the author hosts the file (up to 128 bytes, shown as a link only, never auto-loaded) |
 
 Payload (`application/json`, <= 128 KiB): `{v:1, sealed:false, title, body}` or `{v:1, sealed:true, iv, ct}` (AES-GCM, key never leaves the browser; shared in a URL fragment).
 Expiration: 30 days, extended by anyone (Lifetime Extension).
@@ -45,6 +48,9 @@ Created by an allowlisted reviewer wallet. `readonly`. Never patched: a changed 
 Expiration: 90 days (outlives the 30-day report on purpose).
 **Trust rule:** the app counts a review only if its `$creator` is on the allowlist. It never trusts `verdict` as proof of anything by itself.
 
+### Verification status (computed by the app, not stored)
+A report is shown as **Verified** when at least 2 different allowlisted reviewers have corroborated it and none dispute it. Each reviewer's latest verdict stands (reviews are append-only, so a changed opinion is a newer review). **Disputed** if any allowlisted reviewer disputes. **In review** if some allowlisted review exists but fewer than 2 corroborate. **Unverified** otherwise, which is the default for every new report. This is a rule the app applies when it reads the data. Arkiv has no smart contracts, so the chain does not enforce it; anyone can recompute it from the public entities. Tested in `scripts/verify-test.ts`.
+
 ### `reviewer`
 Created by the admin wallet, one entity per allowlisted reviewer (no arrays in attributes).
 | Attribute | Type | Meaning |
@@ -60,8 +66,9 @@ Expiration: 180 days. Revoked by the admin deleting the entity. The app reads th
 1. Feed: `project = str(P) AND entity_type = str('report')` + optional `category`, `region`, `incident_ms` range; cursor pagination; client sorts by `incident_ms`.
 2. Allowlist: `project AND entity_type = 'reviewer'` + `createdBy(ADMIN)`.
 3. Trusted reviews: `project AND entity_type = 'review' AND (report_key = key(K))` and `$creator IN allowlist` (built as `or(eq('$creator', addr(r)))`), plus a client-side re-check.
-4. Expiring soon: `... AND $expiresAt < u64(head + 43200)` (about one day).
-5. Live: `watchEntityEvents` over a WebSocket transport, no `fromBlock` (created + expiry-extended events).
+4. Profile: `project AND entity_type = 'report'` with `createdBy(address)`, newest posted first (client-side sort).
+5. Expiring soon: `... AND $expiresAt < u64(head + 43200)` (about one day).
+6. Live: `watchEntityEvents` over a WebSocket transport, no `fromBlock` (created + expiry-extended events).
 
 ## What stays off Arkiv on purpose
-Decryption keys (in the URL fragment only), any media larger than 128 KiB (a report may reference an external file only by hash), reviewer real identities, and any real personal data.
+Decryption keys (in the URL fragment only), the photo or video files themselves (only their SHA-256 fingerprint is recorded) (a report may reference an external file only by hash), reviewer real identities, and any real personal data.

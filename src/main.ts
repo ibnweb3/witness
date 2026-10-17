@@ -2,9 +2,10 @@ import './style.css'
 import { jsonToPayload } from '@arkiv-network/sdk'
 import { ADMIN, BURN, EXPLORER, PROJECT, REPORT_DAYS } from './config'
 import {
-  clientFor, getHead, getReport, isBudgetError, listAllowlist, listReports, listTrustedReviews, reportKeys, reviewsFor, rpcMessage, watchFeed, type Entity,
+  clientFor, getHead, getReport, isBudgetError, listAllowlist, listReports, listReportsBy, listTrustedReviews, reportKeys, reviewsFor, rpcMessage, watchFeed, type Entity,
 } from './lib/arkiv'
-import { importKey, newKey, open as openSealed, seal, sha256Hex } from './lib/crypto'
+import { hashFile, importKey, newKey, open as openSealed, seal, sha256Hex } from './lib/crypto'
+import { STATUS_CLASS, STATUS_EXPLAIN, STATUS_TEXT, statusFor, type ReviewLite, type Status } from './lib/verify'
 import { connectWallet } from './lib/wallet'
 import { createReport, extendReport } from './lib/write'
 
@@ -58,6 +59,18 @@ function expiresIn(expiresAt: bigint) {
 }
 const isLocked = (e: Entity) => (e.owner as string | undefined)?.toLowerCase() === BURN.toLowerCase()
 const decode = (e: any): any => { try { return e.toJson() } catch { return null } }
+const toLite = (e: any): ReviewLite => ({ creator: e.creator as string, verdict: String(av(e, 'verdict')), at: Number(av(e, 'reviewed_ms') ?? 0) })
+const groupReviews = (trusted: any[]) => {
+  const m = new Map<string, ReviewLite[]>()
+  for (const r of trusted) { const k = String(av(r, 'report_key')); const list = m.get(k) ?? []; list.push(toLite(r)); m.set(k, list) }
+  return m
+}
+const statusOf = (m: Map<string, ReviewLite[]>, key: string): Status => statusFor(m.get(key) ?? [], new Set(allow)).status
+const safeHttps = (u: string) => { try { const x = new URL(u); return x.protocol === 'https:' ? x.href : null } catch { return null } }
+/** The wallet already connected to this page, without prompting. */
+const connectedAddress = async (): Promise<string | null> => {
+  try { const a = (await (window as any).ethereum?.request({ method: 'eth_accounts' })) as string[] | undefined; return a?.[0] ?? null } catch { return null }
+}
 
 // ---------- live events ----------
 let onLive: (() => void) | undefined
@@ -104,7 +117,7 @@ let rerender: (() => void) | undefined
 const label = (c: string) => c.replace('_', ' ')
 const titleOf = (r: Entity) => (av(r, 'sealed') === true ? 'Sealed report (encrypted)' : (decode(r)?.title ?? 'Untitled'))
 
-function card(r: Entity, n: number, size: 'hero' | 'mid' | 'small') {
+function card(r: Entity, st: Status, size: 'hero' | 'mid' | 'small') {
   const cat = String(av(r, 'category'))
   return h('a', { class: `card-art ${size} cat-${cat}`, href: `#/r/${r.key}` },
     h('span', { class: 'shade', 'aria-hidden': 'true' }),
@@ -114,7 +127,8 @@ function card(r: Entity, n: number, size: 'hero' | 'mid' | 'small') {
       h('span', { class: 'badges' },
         av(r, 'sealed') === true && h('span', { class: 'badge' }, 'encrypted'),
         isLocked(r) && h('span', { class: 'badge' }, 'locked'),
-        n > 0 && h('span', { class: 'badge ok' }, `${n} trusted review${n > 1 ? 's' : ''}`)),
+        h('span', { class: `badge ${STATUS_CLASS[st]}` }, STATUS_TEXT[st]),
+        av(r, 'media_hash') ? h('span', { class: 'badge' }, 'file fingerprint') : null),
       h('span', { class: 'by' }, `By ${short(r.creator as string)} / ${dateStr(Number(av(r, 'incident_ms')))} / ${expiresIn(r.expiresAt as bigint)}`)))
 }
 const thumb = (r: Entity) => h('span', { class: `thumb art cat-${av(r, 'category')}`, 'aria-hidden': 'true' })
@@ -146,13 +160,13 @@ async function feedView() {
     h('details', { class: 'filterbar', open: active }, h('summary', {}, active ? 'Filters (active)' : 'Filters'), form, active ? h('a', { href: '#/' }, 'Clear filters') : null),
     out)
 
-  let data: { reports: Entity[]; counts: Map<string, number> } | null = null
+  let data: { reports: Entity[]; reviews: Map<string, ReviewLite[]> } | null = null
   const render = () => {
     if (!data) return
     const q = searchQ.trim().toLowerCase()
     const hay = (r: Entity) => [av(r, 'category'), av(r, 'region'), av(r, 'sealed') === true ? '' : (decode(r)?.title ?? '')].join(' ').toLowerCase()
     const rs = q ? data.reports.filter(r => hay(r).includes(q)) : data.reports
-    const n = (r: Entity) => data!.counts.get(r.key as string) ?? 0
+    const n = (r: Entity): Status => statusOf(data!.reviews, r.key as string)
     if (!rs.length) {
       out.replaceChildren(h('div', { class: 'empty' },
         h('p', {}, q ? `Nothing matches “${searchQ}”. Sealed reports are not searchable by title.` : 'No reports match these filters yet.'),
@@ -187,7 +201,7 @@ async function feedView() {
   const load = async () => {
     out.replaceChildren(h('div', { class: 'hero-grid' }, h('div', { class: 'skeleton big hero' }), h('div', { class: 'skeleton' }), h('div', { class: 'skeleton' })))
     try {
-      if (import.meta.env.DEV && location.search.includes('mock')) { head = 990_000n; data = (await import('./dev-mock')).mockReports(); render(); return } // layout check only, no network
+      if (import.meta.env.DEV && location.search.includes('mock')) { head = 990_000n; const m = (await import('./dev-mock')).mockReports(); allow = m.allow; data = { reports: m.reports, reviews: m.reviews }; render(); return } // layout check only, no network
       await refreshState()
       const { reports, trusted } = await cached('feed:' + [f.category, f.region, f.from, f.to].join('|'), 45_000, async () => {
         const [reports, trusted] = await Promise.all([
@@ -200,9 +214,7 @@ async function feedView() {
         ])
         return { reports, trusted }
       })
-      const counts = new Map<string, number>()
-      for (const r of trusted) { const k = av(r, 'report_key'); counts.set(k, (counts.get(k) ?? 0) + 1) }
-      data = { reports, counts }
+      data = { reports, reviews: groupReviews(trusted) }
       render()
     } catch (e: any) {
       out.replaceChildren(h('div', { class: 'empty' }, h('p', {}, rpcMessage(e)), h('button', { onclick: () => { cache.clear(); load() } }, 'Try again')))
@@ -211,6 +223,34 @@ async function feedView() {
   let t: number | undefined
   onLive = () => { cache.clear(); clearTimeout(t); t = window.setTimeout(load, 400) }
   await load()
+}
+
+function mediaCard(hash: string, type: string, url: string | null) {
+  const out = h('p', { class: 'msg', role: 'status' }, 'Choose the file you were given to compare it with this record.')
+  const preview = h('div', { class: 'preview' })
+  let blobUrl = ''
+  const input = h('input', { type: 'file', accept: 'image/*,video/*', 'aria-label': 'File to check', onchange: async () => {
+    const f = input.files?.[0]
+    if (!f) return
+    preview.replaceChildren()
+    if (f.size > 100 * 1024 * 1024) { out.className = 'msg err'; out.textContent = 'That file is over 100 MB, too large to fingerprint in the browser.'; return }
+    out.className = 'msg'; out.textContent = 'Fingerprinting in your browser…'
+    const got = await hashFile(f)
+    const ok = got.toLowerCase() === hash.toLowerCase()
+    out.className = 'msg ' + (ok ? 'ok' : 'err')
+    out.replaceChildren(ok ? '✔ Match. This file is byte-for-byte the one recorded on this report.' : '✘ No match. This is not the file recorded here. Any change at all, even one pixel, changes the fingerprint.', h('code', { class: 'hashline' }, 'your file: ' + got))
+    if (blobUrl) URL.revokeObjectURL(blobUrl)
+    if (f.type.startsWith('image/')) { blobUrl = URL.createObjectURL(f); preview.replaceChildren(h('img', { src: blobUrl, alt: 'Preview of the file you chose' })) }
+  } })
+  return h('div', { class: 'card mediacheck' },
+    h('h2', { style: 'margin-top:0' }, 'Photo or video fingerprint'),
+    h('dl', { class: 'kv' },
+      h('dt', {}, 'Type'), h('dd', {}, type),
+      h('dt', {}, 'SHA-256'), h('dd', {}, h('code', {}, hash)),
+      url ? h('dt', {}, 'Author’s link') : null,
+      url ? h('dd', {}, h('a', { href: url, target: '_blank', rel: 'noopener noreferrer nofollow' }, new URL(url).host), ' (supplied by the author, not checked or hosted by us)') : null),
+    h('p', { class: 'lede', style: 'margin:12px 0 8px' }, 'The file is not stored on Arkiv or on this site. Only its fingerprint is recorded, so you can check that a copy you were given is the original. A match proves the file is unchanged since it was recorded. It does not prove its content is genuine.'),
+    h('label', {}, 'Check a file', input), preview, out)
 }
 
 async function detailView(key: `0x${string}`, keyText?: string) {
@@ -255,6 +295,10 @@ async function detailView(key: `0x${string}`, keyText?: string) {
   const all = await cached('rv:' + key, 45_000, () => reviewsFor(key))
   const trusted = all.filter(r => allow.includes((r.creator as string).toLowerCase()))
   const ignored = all.filter(r => !allow.includes((r.creator as string).toLowerCase()))
+  const verdict = statusFor(all.map(toLite), new Set(allow))
+  const mediaHash = av(e, 'media_hash') as string | undefined
+  const mediaUrl = av(e, 'media_url') ? safeHttps(String(av(e, 'media_url'))) : null
+  const mediaBlock = mediaHash ? mediaCard(mediaHash, String(av(e, 'media_type') ?? 'unknown'), mediaUrl) : null
   const reviewCard = (r: any, ok: boolean) => h('div', { class: 'card' },
     h('div', { class: 'row' }, h('span', { class: `chip ${ok ? 'ok' : 'bad'}` }, String(av(r, 'verdict')).replace('_', ' ')), 'by ', addrLink(r.creator as string),
       !ok && h('span', { class: 'chip bad' }, 'ignored: creator not on allowlist')),
@@ -264,10 +308,13 @@ async function detailView(key: `0x${string}`, keyText?: string) {
     h('a', { href: '#/' }, '← All reports'),
     h('h1', {}, title),
     h('p', { class: 'meta' }, h('span', {}, String(av(e, 'category')).replace('_', ' ')), h('span', {}, String(av(e, 'region'))), h('span', {}, 'incident ' + dateStr(Number(av(e, 'incident_ms')))), h('span', {}, expiresIn(e.expiresAt))),
+    h('div', { class: `status ${verdict.status}` }, h('span', { class: 'big' }, STATUS_TEXT[verdict.status]),
+      h('p', {}, STATUS_EXPLAIN[verdict.status], ` (${verdict.corroborated} corroborate, ${verdict.disputed} dispute, from ${verdict.reviewers} allowlisted reviewer${verdict.reviewers === 1 ? '' : 's'}.)`)),
     keyPrompt, body ? h('div', { class: 'card pre' }, body) : null,
+    mediaBlock,
     h('h2', {}, 'Why you can trust what you see'),
     h('div', { class: 'card' }, h('dl', { class: 'kv' },
-      h('dt', {}, 'Creator'), h('dd', {}, addrLink(e.creator), ' fixed forever, not a field anyone typed'),
+      h('dt', {}, 'Creator'), h('dd', {}, addrLink(e.creator), ' · ', h('a', { href: `#/u/${e.creator}` }, 'view profile'), '. Fixed forever, not a field anyone typed.'),
       h('dt', {}, 'Owner'), h('dd', {}, addrLink(e.owner), isLocked(e) ? ' burn address: nobody, not even the author, can delete this' : ' the owner can delete this record'),
       h('dt', {}, 'Frozen'), h('dd', {}, e.creationFlags?.readonly ? 'Yes. Content and attributes cannot be edited.' : 'No'),
       h('dt', {}, 'Anyone can extend'), h('dd', {}, e.creationFlags?.permissionlessExtension ? 'Yes. Any wallet can keep it alive.' : 'No'),
@@ -291,19 +338,32 @@ async function postView() {
     const d = new FormData(form)
     const title = String(d.get('title')).trim(), body = String(d.get('body')).trim()
     const wantSeal = d.get('seal') === 'on', lock = d.get('lock') === 'on'
+    const file = d.get('media') as File | null
+    const mediaUrlRaw = String(d.get('media_url') ?? '').trim()
     submit.disabled = true; msg.className = 'msg'; msg.textContent = 'Preparing…'
     try {
       let payload: Record<string, unknown> = { v: 1, sealed: false, title, body }
       let keyText = ''
       if (wantSeal) { const k = await newKey(); keyText = k.keyText; payload = await seal({ title, body }, k.key) }
       if (jsonToPayload(payload).length > 128 * 1024) throw new Error('Too large: a payload is limited to 128 KiB.')
+      let media: { hash: `0x${string}`; type: string; url?: string } | undefined
+      if (file && file.size > 0) {
+        if (file.size > 100 * 1024 * 1024) throw new Error('That file is over 100 MB, too large to fingerprint in the browser.')
+        msg.textContent = 'Fingerprinting your file in the browser…'
+        media = { hash: await hashFile(file), type: (file.type || 'application/octet-stream').toLowerCase() }
+        if (mediaUrlRaw) {
+          if (!safeHttps(mediaUrlRaw)) throw new Error('The file link must be an https:// address.')
+          if (new TextEncoder().encode(mediaUrlRaw).length > 128) throw new Error('The file link is longer than 128 bytes.')
+          media.url = mediaUrlRaw
+        }
+      } else if (mediaUrlRaw) throw new Error('Choose the file too, so its fingerprint can be recorded.')
       msg.textContent = 'Waiting for your wallet…'
       const w = await connectWallet()
       msg.textContent = 'Sending transaction…'
-      const r = await createReport(w, { category: String(d.get('category')), region: String(d.get('region')), incidentMs: Date.parse(String(d.get('incident')) + 'T00:00:00Z'), payload, sealed: wantSeal, lock })
+      const r = await createReport(w, { category: String(d.get('category')), region: String(d.get('region')), incidentMs: Date.parse(String(d.get('incident')) + 'T00:00:00Z'), payload, sealed: wantSeal, lock, media })
       const link = `${location.origin}${location.pathname}#/r/${r.entityKey}${keyText ? '/' + keyText : ''}`
       msg.className = 'msg ok'
-      msg.replaceChildren(...([ 'Posted. ', txLink(r.txHash), ' · ', h('a', { href: `#/r/${r.entityKey}${keyText ? '/' + keyText : ''}` }, 'Open report'),
+      msg.replaceChildren(...([ 'Posted. ', txLink(r.txHash), ' · ', h('a', { href: `#/r/${r.entityKey}${keyText ? '/' + keyText : ''}` }, 'Open report'), ' · ', h('a', { href: `#/u/${w.account.address}` }, 'Your profile'),
         keyText ? h('div', { class: 'card' }, h('p', {}, 'Save this share link now. The decryption key is in it and is not stored anywhere else:'), h('code', {}, link)) : null ].filter(Boolean) as (Node | string)[]))
     } catch (err: any) { msg.className = 'msg err'; msg.textContent = err?.shortMessage ?? err?.message ?? String(err); submit.disabled = false }
   } },
@@ -311,6 +371,8 @@ async function postView() {
     h('label', {}, 'Incident date', h('input', { type: 'date', name: 'incident', required: true, max: dateStr(Date.now()) })),
     h('label', {}, 'Title', h('input', { type: 'text', name: 'title', required: true, maxlength: 140, autocomplete: 'off' })),
     h('label', {}, 'Details', h('textarea', { name: 'body', required: true, maxlength: 20000 })),
+    h('label', {}, 'Photo or video (optional). It is not uploaded anywhere. Only its fingerprint (SHA-256 hash) is recorded, and the hash is public.', h('input', { type: 'file', name: 'media', accept: 'image/*,video/*' })),
+    h('label', {}, 'Where the file is hosted (optional https link, up to 128 bytes)', h('input', { type: 'url', name: 'media_url', maxlength: 128, autocomplete: 'off', placeholder: 'https://' })),
     h('label', { class: 'check' }, h('input', { type: 'checkbox', name: 'seal' }), h('span', {}, 'Encrypt in my browser. Only people with the link’s key can read it. Category, region and dates stay public.')),
     h('label', { class: 'check' }, h('input', { type: 'checkbox', name: 'lock' }), h('span', {}, 'Lock it. Ownership moves to a burn address so nobody, including you, can ever delete it. You cannot undo this.')),
     h('label', { class: 'check' }, h('input', { type: 'checkbox', name: 'demo', required: true }), h('span', {}, 'I understand this is a public testnet demo. I will post synthetic content only: no real people, places, footage or personal data.')),
@@ -346,6 +408,7 @@ async function proofView() {
     h('ul', {},
       h('li', {}, 'It does not make anyone anonymous. The posting wallet is public and a funding transaction can link wallets.'),
       h('li', {}, 'It does not prove a report is true. It makes it harder to erase or rewrite and shows who vouched.'),
+      h('li', {}, 'A matching file fingerprint shows a photo or video is unchanged since it was recorded. It does not show the content is genuine, and it cannot detect a forgery that was recorded as-is.'),
       h('li', {}, 'A government could block the public RPC address, as websites are blocked. The data lives on the network and can be read through any RPC, but the RPC must be reachable.'),
       h('li', {}, 'Writing needs internet too. In a blackout nobody can post.'),
       h('li', {}, 'Reports expire unless extended. An expired report leaves the query surface; its creation transaction stays on-chain.'),
@@ -385,6 +448,46 @@ async function aboutView() {
     h('p', { class: 'meta' }, 'Every report on this site is synthetic demo data.')))
 }
 
+async function profileView(address: string) {
+  setNav('me'); onLive = undefined
+  const mine = (await connectedAddress())?.toLowerCase() === address.toLowerCase()
+  const head1 = h('div', { class: 'profilehead' }, h('h1', {}, mine ? 'Your profile' : 'Profile'), mine ? h('span', { class: 'chip ok' }, 'connected wallet') : null)
+  show(head1, h('p', { class: 'meta' }, h('span', {}, 'Wallet '), addrLink(address)), h('div', { class: 'skeleton' }))
+  try {
+    await refreshState()
+    const { reports, trusted } = await cached('u:' + address.toLowerCase(), 45_000, async () => {
+      const [reports, trusted] = await Promise.all([listReportsBy(address), listTrustedReviews(allow)])
+      return { reports, trusted }
+    })
+    const reviews = groupReviews(trusted)
+    const verified = reports.filter(r => statusOf(reviews, r.key as string) === 'verified').length
+    show(head1,
+      h('p', { class: 'meta' }, h('span', {}, 'Wallet '), addrLink(address), h('span', {}, `${reports.length} report${reports.length === 1 ? '' : 's'}`), h('span', {}, `${verified} verified`)),
+      h('p', { class: 'lede' }, 'A profile is just every report created by this wallet, read from the network. Nothing here is verified by default: a report shows as Unverified until at least 2 allowlisted reviewers corroborate it.'),
+      reports.length
+        ? h('div', { class: 'grid3' }, ...reports.map(r => card(r, statusOf(reviews, r.key as string), 'mid')))
+        : h('div', { class: 'empty' }, h('p', {}, 'This wallet has not posted any reports.'), mine ? h('a', { class: 'btn', href: '#/post' }, 'Post a report') : null))
+  } catch (e: any) {
+    show(h('div', { class: 'empty' }, h('p', {}, rpcMessage(e)), h('button', { onclick: () => { cache.clear(); profileView(address) } }, 'Try again')))
+  }
+}
+
+async function meView() {
+  setNav('me'); onLive = undefined
+  const a = await connectedAddress()
+  if (a) { location.replace('#/u/' + a); return }
+  const msg = h('p', { class: 'msg', role: 'status' })
+  const btn = h('button', { onclick: async () => {
+    btn.disabled = true; msg.className = 'msg'; msg.textContent = 'Waiting for your wallet…'
+    try { const w = await connectWallet(); location.hash = '#/u/' + w.account.address } catch (err: any) {
+      msg.className = 'msg err'; msg.textContent = err?.shortMessage ?? err?.message ?? String(err); btn.disabled = false
+    }
+  } }, 'Connect wallet')
+  show(h('h1', {}, 'Your profile'),
+    h('p', { class: 'lede' }, 'There are no accounts or passwords here. Your wallet address is your identity: connect it to see everything it has posted. Connecting only shares your public address with this page. It signs nothing and moves no funds.'),
+    btn, msg)
+}
+
 // ---------- router ----------
 async function route() {
   rerender = undefined
@@ -392,7 +495,10 @@ async function route() {
   window.scrollTo(0, 0)
   try {
     const m = hash.match(/^#\/r\/(0x[0-9a-fA-F]{64})(?:\/([^?]+))?/)
+    const u = hash.match(/^#\/u\/(0x[0-9a-fA-F]{40})/)
     if (m) await detailView(m[1] as `0x${string}`, m[2] ? decodeURIComponent(m[2]) : undefined)
+    else if (u) await profileView(u[1])
+    else if (hash.startsWith('#/me')) await meView()
     else if (hash.startsWith('#/post')) await postView()
     else if (hash.startsWith('#/proof')) await proofView()
     else if (hash.startsWith('#/about')) await aboutView()
@@ -417,7 +523,7 @@ function wireChrome() {
 
   const drawer = document.getElementById('drawer')!
   const menu = document.getElementById('menu')!
-  drawer.replaceChildren(...CATEGORIES.map(c => h('a', { href: `#/?c=${c}` }, label(c))), h('a', { href: '#/post' }, 'Post a report'), h('a', { href: '#/proof' }, 'Proof'))
+  drawer.replaceChildren(...CATEGORIES.map(c => h('a', { href: `#/?c=${c}` }, label(c))), h('a', { href: '#/post' }, 'Post a report'), h('a', { href: '#/me' }, 'Profile'), h('a', { href: '#/proof' }, 'Proof'))
   const setDrawer = (openIt: boolean) => { drawer.hidden = !openIt; menu.setAttribute('aria-expanded', String(openIt)); menu.setAttribute('aria-label', openIt ? 'Close menu' : 'Open menu') }
   menu.addEventListener('click', () => setDrawer(drawer.hidden === true))
 

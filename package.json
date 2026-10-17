@@ -9,7 +9,8 @@
     "build": "vite build",
     "typecheck": "tsc --noEmit -p .",
     "seed": "tsx --env-file=.env scripts/seed.ts",
-    "balances": "tsx --env-file=.env scripts/balances.ts"
+    "balances": "tsx --env-file=.env scripts/balances.ts",
+    "seed2": "tsx --env-file=.env scripts/seed2.ts"
   },
   "keywords": [],
   "author": "",

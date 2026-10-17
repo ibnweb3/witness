@@ -12,6 +12,8 @@ export type NewReport = {
   payload: Record<string, unknown> // already sealed, or plaintext {v,sealed:false,title,body}
   sealed: boolean
   lock?: boolean // move ownership to the burn address so nobody (even the author) can delete it
+  // Optional photo/video: only its SHA-256 fingerprint (and an optional author-supplied link) goes on Arkiv, never the file.
+  media?: { hash: `0x${string}`; type: string; url?: string }
 }
 
 export async function createReport(w: Wallet, r: NewReport) {
@@ -24,6 +26,7 @@ export async function createReport(w: Wallet, r: NewReport) {
       category: str(r.category), region: str(r.region),
       incident_ms: u64(r.incidentMs), posted_ms: u64(Date.now()),
       sealed: bool(r.sealed), content_hash: bytes32(await sha256Hex(bytes)),
+      ...(r.media ? { media_hash: bytes32(r.media.hash), media_type: str(r.media.type), ...(r.media.url ? { media_url: str(r.media.url) } : {}) } : {}),
     },
     expires: ExpirationTime.fromDays(REPORT_DAYS),
     flags: { readonly: true, permissionlessExtension: true },

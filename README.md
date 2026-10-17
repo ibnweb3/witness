@@ -25,12 +25,17 @@ WitNess is a small, honest answer to one part of that gap.
 - **Optional lock.** The author can move ownership to a burn address in the same atomic batch, so nobody, including the author, can delete it. This cannot be undone.
 - **Optional encryption.** A report can be encrypted in the browser (AES-GCM). The key lives only in the share link's URL fragment and is never sent to any server.
 - **Reviews count only from allowlisted wallets.** The app shows a review as trusted only when its immutable on-chain `$creator` is on an allowlist published by an admin wallet. A forged review from any other wallet is shown as ignored, with the reason.
+- **Verified only by a council, never by the author.** A report starts as Unverified. It shows as Verified only when at least 2 different allowlisted reviewers corroborate it and none dispute it. Each reviewer's latest verdict stands. The rule is applied by the app when it reads public entities (Arkiv has no smart contracts, so the chain does not enforce it), and anyone can recompute it.
+- **Photo and video fingerprints.** A report can carry the SHA-256 fingerprint of a photo or video. The file is never uploaded to Arkiv or to this site. On the report page, anyone can drop a copy they were given and the browser checks whether it is byte-for-byte the recorded file. Sample files to try: `/demo/synthetic-image.png` (matches) and `/demo/synthetic-image-tampered.png` (one pixel changed, does not match).
+- **Wallet profiles.** There are no accounts or passwords: your wallet address is your identity. A profile page lists everything a wallet created, read with a `$creator` filter. Connecting a wallet shares only the public address and signs nothing.
 - **Reads need none of our servers.** The site is static. Your browser queries the public Arkiv RPC directly. The Proof page runs the exact query and lets you point it at a different RPC.
 
 ## What it does not do
 
 - It does **not** make anyone anonymous. The posting wallet is public, and a funding transaction can link wallets.
 - It does **not** prove a report is true. It makes a record harder to erase or rewrite, and shows who vouched.
+- A matching file fingerprint proves a photo or video is unchanged since it was recorded. It does **not** prove the content is genuine, and it cannot detect a forgery that was recorded as-is. We do not use AI "deepfake detectors"; they are unreliable.
+- The reviewer allowlist is published by one admin wallet, so reviewer selection is not decentralized yet. Letting reviewers vote new reviewers in is roadmap, not built. There is no token and no on-chain DAO.
 - A government could block the public RPC address. The data lives on the network and can be read through any RPC, but the RPC has to be reachable.
 - Writing needs internet too. In a blackout nobody can post.
 - Reports expire unless extended. An expired report leaves the query surface, but its creation transaction stays on-chain.
@@ -50,11 +55,12 @@ Full detail: [`arkiv/schema.md`](arkiv/schema.md). Friction report: [`arkiv/fric
 | Per-type Entity Expiration | `config.ts`, `write.ts` | Report 30 d, review 90 d, reviewer 180 d. A review outlives its report on purpose. |
 | Lifetime Extension (`extendEntity`) | `extendReport`, report page button | A report is a lease anyone can renew. |
 | Typed attributes and range queries | `listReports` | `incident_ms` is a `u64`, so the feed filters by date range on the node. |
+| `createdBy()` on reports | `listReportsBy` | A wallet profile is one `$creator` filter. |
 | Cursor pagination | `listReports` (async iteration) | Walks all pages, sorted client-side by incident date. |
 | `$expiresAt` range query | `expiringSoon` | Find reports that expire within a day. |
 | WebSocket entity events, no `fromBlock` | `watchFeed` | New and extended reports appear live without a refresh loop. |
 
-What stays **off** Arkiv on purpose: decryption keys, any media larger than the 128 KiB payload limit, reviewer real identities, and any real personal data.
+What stays **off** Arkiv on purpose: decryption keys, the photo and video files themselves (only a SHA-256 fingerprint is recorded), reviewer real identities, and any real personal data.
 
 ## Run it
 
@@ -82,7 +88,9 @@ Posting from the site uses a browser wallet (for example MetaMask), which it swi
 2. Open **Proof** and press **Run this query from my browser**. It runs `project = str('witness-reg-ibn26') AND entity_type = str('report')` against the public RPC and prints the matching report keys.
 3. Open a report that has reviews. The page lists trusted reviews, and any review from a non-allowlisted creator under "ignored", with the reason.
 4. Compare the wallet addresses in [`arkiv/evidence.md`](arkiv/evidence.md) with the creators shown on the explorer: https://tiramisu.explorer.arkiv.network
-5. Optional, needs a wallet with test GLM: press **Keep this alive** on any report, or post a new one.
+5. Open the report titled "Synthetic: sample photo with a fingerprint", download `/demo/synthetic-image.png`, and use **Check a file** to see a match. Then try `/demo/synthetic-image-tampered.png` to see the mismatch.
+6. Open the first report in the list to see a **Verified** status (two reviewers), and "Synthetic: road closure log" for **Disputed**.
+7. Optional, needs a wallet with test GLM: press **Keep this alive** on any report, or post a new one.
 
 ## Project layout
 

@@ -22,3 +22,19 @@ Generated 2026-10-16T23:53:19.069Z. All data synthetic.
 
 Demo decryption key for the sealed report (synthetic): `AEnsEofJjSDh_4U3yQ_guYQSxnXWRMvwLaz-CL5oo0A`
 Sealed report key: `0x3f958b592db744b1b962243251b1d41cc81ada0358ffbed17faa6efb31e94505`
+
+## Second seed: second reviewer and a file fingerprint (synthetic)
+
+| Role | Address |
+|---|---|
+| reviewer B | 0xA03798cDA2BC7fF3B0D1097E98d4E3ECcd429903 |
+
+| What | Entity key | Tx |
+|---|---|---|
+| reviewer allowlist entry (B) | `0xc94bf464932723c6ed2d97c2518f7253e420985477426b2ed9ff35757d53061d` | [0xeb6541c4…](https://tiramisu.explorer.arkiv.network/tx/0xeb6541c404023904cec9430834aebb5c322a22ec2cc498b6617dfe55a3ec73e4) |
+| trusted review B: corroborated (procurement) → Verified | `0x095dfd17e000c486a474a7589967b55ec6660918fe8e87eb1ee2c004fc9d6191` | [0x304c91fb…](https://tiramisu.explorer.arkiv.network/tx/0x304c91fbbe5c865803fd4226d6366498d7b164a523cc63a563574f9b4743567d) |
+| trusted review B: disputed (public_safety) → Disputed | `0x27b771c9127af51ddd8f80151dc5da721b90cb1bc0a688d9a0b19fbf3c12d025` | [0xaa1b4f2b…](https://tiramisu.explorer.arkiv.network/tx/0xaa1b4f2bd3cebdc721e78e9ee1dcc9349be2a49c0b0389f08b2f808379f7c300) |
+| report with media fingerprint (sha256 0xbe11757b…) | `0xc203a360f913f888b437d072c2e12eeb2b6ec843795617c5640ce2cfcf597ea3` | [0x9b737068…](https://tiramisu.explorer.arkiv.network/tx/0x9b737068c4086129ed9f60d38825c683130fd2e984e6224dbb6b05d0cc8c43fa) |
+| trusted review A: corroborated (media) → In review | `0x3acf7f6963f556a6e751182a132000473a06de883278cdae57d8402083665e95` | [0x73ac2c88…](https://tiramisu.explorer.arkiv.network/tx/0x73ac2c88b9fd8ec3223a1a23130e47e9049df65a51d1443d0ba08ced3649c618) |
+
+Sample files on the site: /demo/synthetic-image.png (matches the media report) and /demo/synthetic-image-tampered.png (one pixel changed, does not match).

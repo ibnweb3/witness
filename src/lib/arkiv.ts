@@ -106,3 +106,17 @@ export function watchFeed(h: { onAny?: (blockNumber: bigint) => void; onCreated?
     onError: h.onError,
   })
 }
+
+/** Every report created by one wallet (a profile is just a `$creator` filter). Newest posted first. */
+export async function listReportsBy(address: string, max = 200) {
+  const out: Entity[] = await viaRpc(async c => {
+    const acc: Entity[] = []
+    for await (const e of c.select(FIELDS).where(...base('report')).createdBy(address as `0x${string}`).limit(200)) {
+      acc.push(e)
+      if (acc.length >= max) break
+    }
+    return acc
+  })
+  const posted = (e: Entity) => { const a = e.attributes.posted_ms; return a?.type === 'u64' ? Number(a.value) : 0 }
+  return out.sort((a, b) => posted(b) - posted(a))
+}
