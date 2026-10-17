@@ -56,7 +56,7 @@ Full detail: [`arkiv/schema.md`](arkiv/schema.md). Friction report: [`arkiv/fric
 | Lifetime Extension (`extendEntity`) | `extendReport`, report page button | A report is a lease anyone can renew. |
 | Typed attributes and range queries | `listReports` | `incident_ms` is a `u64`, so the feed filters by date range on the node. |
 | `createdBy()` on reports | `listReportsBy` | A wallet profile is one `$creator` filter. |
-| Cursor pagination | `listReports` (async iteration) | Walks all pages, sorted client-side by incident date. |
+| Cursor pagination | `listReports` (async iteration) | Walks all pages, sorted client-side by posting time (newest first). |
 | `$expiresAt` range query | `expiringSoon` | Find reports that expire within a day. |
 | WebSocket entity events, no `fromBlock` | `watchFeed` | New and extended reports appear live without a refresh loop. |
 

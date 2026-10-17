@@ -75,8 +75,8 @@ export async function listReports(f: ReportFilter = {}, max = 200) {
     }
     return acc
   })
-  const ms = (e: Entity) => { const a = e.attributes.incident_ms; return a?.type === 'u64' ? Number(a.value) : 0 }
-  return out.sort((a, b) => ms(b) - ms(a)) // node returns newest-created first; sort by incident date client-side
+  const posted = (e: Entity) => { const a = e.attributes.posted_ms; return a?.type === 'u64' ? Number(a.value) : 0 }
+  return out.sort((a, b) => posted(b) - posted(a)) // newest posted first (the incident date is still shown on each card)
 }
 
 /** Reviews whose on-chain creator is on the allowlist. A review from anyone else is never returned. */

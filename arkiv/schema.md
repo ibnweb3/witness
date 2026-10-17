@@ -63,7 +63,7 @@ Created by the admin wallet, one entity per allowlisted reviewer (no arrays in a
 Expiration: 180 days. Revoked by the admin deleting the entity. The app reads the list with `createdBy(admin)`.
 
 ## Queries the app runs
-1. Feed: `project = str(P) AND entity_type = str('report')` + optional `category`, `region`, `incident_ms` range; cursor pagination; client sorts by `incident_ms`.
+1. Feed: `project = str(P) AND entity_type = str('report')` + optional `category`, `region`, `incident_ms` range; cursor pagination; client sorts by `posted_ms` (newest posted first).
 2. Allowlist: `project AND entity_type = 'reviewer'` + `createdBy(ADMIN)`.
 3. Trusted reviews: `project AND entity_type = 'review' AND (report_key = key(K))` and `$creator IN allowlist` (built as `or(eq('$creator', addr(r)))`), plus a client-side re-check.
 4. Profile: `project AND entity_type = 'report'` with `createdBy(address)`, newest posted first (client-side sort).
