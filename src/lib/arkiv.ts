@@ -5,9 +5,19 @@ import { and, eq, gte, lte, lt, or } from '@arkiv-network/sdk/query'
 import { http, webSocket } from 'viem'
 import { ADMIN, BLOCKS_PER_DAY, PROJECT } from '../config'
 
-// retryCount 1: the public RPC answers 429 immediately when the anonymous query budget is spent,
+// Optional Arkiv access key, as a full RPC URL: https://rpc.tiramisu.db-chain.testnet.arkiv.network/<key>.
+// A key has its own monthly quota, unlike the shared anonymous budget. In the browser it comes from VITE_ARKIV_RPC at
+// build time (so it is visible in the page's network requests: use a key restricted to this site's origin);
+// in Node scripts it comes from ARKIV_RPC_URL.
+const KEYED_URL: string | undefined =
+  import.meta.env?.VITE_ARKIV_RPC || (typeof process !== 'undefined' ? process.env?.ARKIV_RPC_URL : undefined) || undefined
+
+// retryCount 1: the public RPC answers 429 immediately when a budget is spent,
 // and viem's default of 3 retries with backoff only makes the page hang.
-export const publicHttp = createPublicClient({ chain: tiramisu, transport: http(undefined, { retryCount: 1 }) })
+const anon = createPublicClient({ chain: tiramisu, transport: http(undefined, { retryCount: 1 }) })
+const keyed = KEYED_URL ? createPublicClient({ chain: tiramisu, transport: http(KEYED_URL, { retryCount: 1 }) }) : undefined
+/** The client every read goes through: the keyed one when configured, otherwise the anonymous public RPC. */
+export const publicHttp = (keyed ?? anon) as typeof anon
 // WebSocket client for live events (no fromBlock, so it is a push subscription).
 let ws: ReturnType<typeof createPublicClient> | undefined
 export const publicWs = () => (ws ??= createPublicClient({ chain: tiramisu, transport: webSocket() }))
@@ -16,10 +26,8 @@ export function clientFor(rpcUrl: string) {
   return createPublicClient({ chain: tiramisu, transport: http(rpcUrl, { retryCount: 1 }) })
 }
 
-// Optional second RPC (for example one with an Arkiv access key). Only used if the public one says 429.
-// Note: anything in a browser bundle is public, so use a low-privilege, rate-limit-only key.
-const FALLBACK_URL = (import.meta as any).env?.VITE_ARKIV_RPC_FALLBACK as string | undefined
-const fallback = FALLBACK_URL ? clientFor(FALLBACK_URL) : undefined
+// If a keyed client is the primary, the anonymous public RPC is the backup (and the other way round is not needed).
+const fallback = keyed ? anon : undefined
 
 /** True when the RPC refused because of rate limits or the anonymous query budget. */
 export const isBudgetError = (e: any) =>

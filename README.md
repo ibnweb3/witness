@@ -39,7 +39,7 @@ WitNess is a small, honest answer to one part of that gap.
 - A government could block the public RPC address. The data lives on the network and can be read through any RPC, but the RPC has to be reachable.
 - Writing needs internet too. In a blackout nobody can post.
 - Reports expire unless extended. An expired report leaves the query surface, but its creation transaction stays on-chain.
-- The public Arkiv RPC gives each anonymous visitor a limited, cost-based query budget (the error is `ANON_COST_LIMITED`, and it resets about hourly). If the site shows a rate-limit message, wait a few minutes and try again. The app caches reads for 30 to 45 seconds to stay inside the budget. See `arkiv/friction.md` (F3, F4).
+- Reads need an Arkiv RPC with enough query budget. The anonymous public RPC has a small cost-based budget (error `ANON_COST_LIMITED`, hourly windows) that, in my testing, was usually empty. So this site uses an Arkiv access key as its main RPC, restricted to the site's origin, and falls back to the anonymous RPC. **The key is built into the page and visible in its network requests**, because a static site has nowhere to hide it; Arkiv's docs advise keeping keys on a backend. The worst case is someone spending the testnet quota, after which the site falls back to the anonymous RPC and may show a rate-limit message. The app also caches reads for 30 to 45 seconds. See `arkiv/friction.md` (F3, F4, F5). Anyone can run the same queries against any RPC from the Proof page.
 - Arkiv documents a keccak Merkle-Patricia state root readable with `eth_getProof`. This UI does not verify proofs itself.
 
 ## How it uses Arkiv
@@ -74,7 +74,8 @@ npm run dev          # the site, reads straight from Tiramisu
 To write data you need test GLM. The faucet at https://hub.arkiv.network/faucet requires a wallet sign-in.
 
 ```bash
-# .env (never commit it): ADMIN_KEY, REPORTER_KEY, REVIEWER_KEY are three funded Tiramisu test keys
+# .env (never commit it): ADMIN_KEY, REPORTER_KEY, REVIEWER_KEY (and REVIEWER2_KEY for `npm run seed2`) are funded Tiramisu test keys.
+# Optional: ARKIV_RPC_URL=<RPC URL with an Arkiv access key> for scripts, and VITE_ARKIV_RPC=<same> in .env.local for the site build.
 npm run balances     # check funding
 npm run seed         # creates a synthetic reviewer, reports, reviews and one forged review; writes arkiv/evidence.md
 npm run build        # static site in dist/
