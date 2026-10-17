@@ -5,7 +5,7 @@ import {
   clientFor, getHead, getReport, isBudgetError, listAllowlist, listReports, listReportsBy, listTrustedReviews, publicHttp, reportKeys, reviewsFor, rpcMessage, watchFeed, type Entity,
 } from './lib/arkiv'
 import { hashFile, importKey, newKey, open as openSealed, seal, sha256Hex } from './lib/crypto'
-import { previewSrc, shrinkImage, type Preview } from './lib/image'
+import { previewSrc, shrinkImage, videoPoster, type Preview } from './lib/image'
 import { STATUS_CLASS, STATUS_EXPLAIN, STATUS_TEXT, statusFor, type ReviewLite, type Status } from './lib/verify'
 import { connectWallet } from './lib/wallet'
 import { createReport, extendReport } from './lib/write'
@@ -230,7 +230,28 @@ async function feedView() {
   await load()
 }
 
-function previewCard(src: string, status: Status, hasFingerprint: boolean) {
+/** Downloads a file but gives up past `limit` bytes. Needs the host to allow cross-site reads. */
+async function fetchLimited(url: string, limit: number): Promise<Uint8Array<ArrayBuffer>> {
+  const res = await fetch(url, { mode: 'cors', credentials: 'omit', referrerPolicy: 'no-referrer' })
+  if (!res.ok) throw new Error('HTTP ' + res.status)
+  if (Number(res.headers.get('content-length') ?? 0) > limit) { void res.body?.cancel(); throw new Error('too large') }
+  const reader = res.body!.getReader()
+  const chunks: Uint8Array[] = []
+  let total = 0
+  for (;;) {
+    const { done, value } = await reader.read()
+    if (done) break
+    total += value.length
+    if (total > limit) { void reader.cancel(); throw new Error('too large') }
+    chunks.push(value)
+  }
+  const out = new Uint8Array(total)
+  let at = 0
+  for (const c of chunks) { out.set(c, at); at += c.length }
+  return out
+}
+
+function previewCard(src: string, status: Status, hasFingerprint: boolean, isVideo: boolean) {
   const slot = h('div', { class: 'preview-slot' })
   const reveal = () => slot.replaceChildren(h('img', { src, class: 'remote-img', alt: 'Preview image stored in this report' }))
   const note = status === 'verified' ? 'Stored on Arkiv with this report, which at least two reviewers have corroborated.'
@@ -239,8 +260,8 @@ function previewCard(src: string, status: Status, hasFingerprint: boolean) {
   if (status === 'verified') reveal()
   const btn = status === 'verified' ? null : h('button', { class: 'ghost', onclick: () => { reveal(); btn?.remove() } }, 'Show the image anyway')
   return h('div', { class: 'card' },
-    h('h2', { style: 'margin-top:0' }, 'Preview image'),
-    h('p', { class: 'lede', style: 'margin:0 0 10px' }, note + ' It is a shrunk copy with location data removed.' + (hasFingerprint ? ' The fingerprint below belongs to the original file.' : '')),
+    h('h2', { style: 'margin-top:0' }, isVideo ? 'Still frame from the video' : 'Preview image'),
+    h('p', { class: 'lede', style: 'margin:0 0 10px' }, note + (isVideo ? ' This is one still frame taken from the video, not the video itself.' : ' It is a shrunk copy with location data removed.') + (hasFingerprint ? ' The fingerprint below belongs to the original file.' : '')),
     btn, slot)
 }
 
@@ -265,6 +286,7 @@ function mediaCard(hash: string, type: string, url: string | null) {
   // (when the host allows us to read it). Raster types only, so nothing executable is ever rendered.
   const RASTER = ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/avif']
   let remoteBlock: Node | null = null
+  let videoBlock: Node | null = null
   if (url && RASTER.includes(type)) {
     const host = new URL(url).host
     const slot = h('div', { class: 'remote' })
@@ -296,6 +318,32 @@ function mediaCard(hash: string, type: string, url: string | null) {
       h('p', { class: 'lede', style: 'margin:12px 0 8px' }, `Optional: load the image from ${host}, the host the author chose. Nothing loads until you click, that host will see your IP address, and we have not reviewed it.`),
       btn, slot)
   }
+  // Optional: play a video from the author's own https link, only after a click (mp4/webm only). The host sees the viewer's IP.
+  if (url && ['video/mp4', 'video/webm'].includes(type)) {
+    const host = new URL(url).host
+    const slot = h('div', { class: 'remote' })
+    const out = h('p', { class: 'msg', role: 'status' })
+    const verify = h('button', { class: 'ghost', onclick: async () => {
+      verify.disabled = true; out.className = 'msg'; out.textContent = 'Downloading the video to check its fingerprint (up to 25 MB)…'
+      try {
+        const got = await sha256Hex(await fetchLimited(url, 25 * 1024 * 1024))
+        const ok = got.toLowerCase() === hash.toLowerCase()
+        out.className = 'msg ' + (ok ? 'ok' : 'err')
+        out.textContent = ok ? '✔ The video at that link matches the recorded fingerprint.' : '✘ The video at that link is NOT the one recorded on this report.'
+      } catch (err: any) {
+        out.className = 'msg'
+        out.textContent = err?.message === 'too large' ? 'That video is over 25 MB, too large to check here. Download it and use “Check a file”.' : 'This host does not let us check the video, or it could not be reached. Download it and use “Check a file”.'
+        verify.disabled = false
+      }
+    } }, 'Check the video against the fingerprint')
+    const play = h('button', { class: 'ghost', onclick: () => {
+      play.remove()
+      slot.replaceChildren(h('video', { src: url, controls: true, preload: 'metadata', playsInline: true, class: 'remote-video' }), verify, out)
+    } }, 'Load the video from the author’s link')
+    videoBlock = h('div', {},
+      h('p', { class: 'lede', style: 'margin:12px 0 8px' }, `Optional: play the video from ${host}, the host the author chose. Nothing loads until you click, that host will see your IP address, and we have not reviewed it. The video is never stored on Arkiv.`),
+      play, slot)
+  }
   return h('div', { class: 'card mediacheck' },
     h('h2', { style: 'margin-top:0' }, 'Photo or video fingerprint'),
     h('dl', { class: 'kv' },
@@ -305,6 +353,7 @@ function mediaCard(hash: string, type: string, url: string | null) {
       url ? h('dd', {}, h('a', { href: url, target: '_blank', rel: 'noopener noreferrer nofollow' }, new URL(url).host), ' (supplied by the author, not checked or hosted by us)') : null),
     h('p', { class: 'lede', style: 'margin:12px 0 8px' }, 'The file is not stored on Arkiv or on this site. Only its fingerprint is recorded, so you can check that a copy you were given is the original. A match proves the file is unchanged since it was recorded. It does not prove its content is genuine.'),
     remoteBlock,
+    videoBlock,
     h('label', {}, 'Check a file', input), preview, out)
 }
 
@@ -355,7 +404,7 @@ async function detailView(key: `0x${string}`, keyText?: string) {
   const mediaUrl = av(e, 'media_url') ? safeHttps(String(av(e, 'media_url'))) : null
   const mediaBlock = mediaHash ? mediaCard(mediaHash, String(av(e, 'media_type') ?? 'unknown'), mediaUrl) : null
   const pSrc = previewSrc(preview)
-  const previewBlock = pSrc ? previewCard(pSrc, verdict.status, !!mediaHash) : null
+  const previewBlock = pSrc ? previewCard(pSrc, verdict.status, !!mediaHash, String(av(e, 'media_type') ?? '').startsWith('video/')) : null
   const reviewCard = (r: any, ok: boolean) => h('div', { class: 'card' },
     h('div', { class: 'row' }, h('span', { class: `chip ${ok ? 'ok' : 'bad'}` }, String(av(r, 'verdict')).replace('_', ' ')), 'by ', addrLink(r.creator as string),
       !ok && h('span', { class: 'chip bad' }, 'ignored: creator not on allowlist')),
@@ -414,12 +463,13 @@ async function postView() {
       } else if (mediaUrlRaw) throw new Error('Choose the file too, so its fingerprint can be recorded.')
       let preview: Preview | undefined
       if (embed) {
-        if (!file || file.size === 0 || !file.type.startsWith('image/')) throw new Error('Choose an image file to store a preview of it.')
-        msg.textContent = 'Shrinking the image in your browser…'
+        const isVideo = !!file && file.type.startsWith('video/')
+        if (!file || file.size === 0 || !(file.type.startsWith('image/') || isVideo)) throw new Error('Choose an image or video file to store a preview picture of it.')
+        msg.textContent = isVideo ? 'Taking a still frame from the video in your browser…' : 'Shrinking the image in your browser…'
         const textBytes = new TextEncoder().encode(JSON.stringify({ title, body })).length
         const budget = Math.min(60_000, Math.floor(((126 * 1024) / (wantSeal ? 1.4 : 1) - textBytes) / 1.34) - 1024)
         if (budget < 8_000) throw new Error('The text is too long to also store an image. Shorten it, or untick the preview.')
-        preview = await shrinkImage(file, budget)
+        preview = isVideo ? await videoPoster(file, budget) : await shrinkImage(file, budget)
       }
       const inner = { title, body, ...(preview ? { preview } : {}) }
       let payload: Record<string, unknown> = { v: 1, sealed: false, ...inner }
@@ -440,14 +490,14 @@ async function postView() {
     h('label', {}, 'Incident date', h('input', { type: 'date', name: 'incident', required: true, max: dateStr(Date.now()) })),
     h('label', {}, 'Title', h('input', { type: 'text', name: 'title', required: true, maxlength: 140, autocomplete: 'off' })),
     h('label', {}, 'Details', h('textarea', { name: 'body', required: true, maxlength: 20000 })),
-    h('label', {}, 'Photo or video (optional). The file itself is not uploaded anywhere. Its fingerprint (SHA-256 hash) is recorded and is public. Choosing an image ticks the preview box below; untick it if you only want the fingerprint recorded.', h('input', { type: 'file', name: 'media', accept: 'image/*,video/*', onchange: (ev: Event) => {
-      // Choosing an image ticks the preview box (people expect an attached image to be shown); a video unticks it.
+    h('label', {}, 'Photo or video (optional). The file itself is not uploaded anywhere. Its fingerprint (SHA-256 hash) is recorded and is public. Choosing an image or video ticks the preview box below; untick it if you only want the fingerprint recorded.', h('input', { type: 'file', name: 'media', accept: 'image/*,video/*', onchange: (ev: Event) => {
+      // Choosing an image or a video ticks the preview box (people expect an attached picture to be shown).
       const f = (ev.target as HTMLInputElement).files?.[0]
       const box = form.querySelector<HTMLInputElement>('input[name=embed]')
-      if (box) box.checked = !!f && f.type.startsWith('image/')
+      if (box) box.checked = !!f && (f.type.startsWith('image/') || f.type.startsWith('video/'))
     } })),
     h('label', {}, 'Where the image is hosted (optional https link, up to 128 bytes). Readers can load it from there after a click, and it is checked against the fingerprint when the host allows.', h('input', { type: 'url', name: 'media_url', maxlength: 128, autocomplete: 'off', placeholder: 'https://' })),
-    h('label', { class: 'check' }, h('input', { type: 'checkbox', name: 'embed' }), h('span', {}, 'Also store a small preview of the image on Arkiv (shrunk to about 60 KB, location data removed) so it can be shown here. It is public, and permanent if you also lock the report. Only use images you have the right to publish. It appears on the homepage only after reviewers verify the report.')),
+    h('label', { class: 'check' }, h('input', { type: 'checkbox', name: 'embed' }), h('span', {}, 'Also store a small preview picture on Arkiv (for a video, one still frame), shrunk to about 60 KB with location data removed, so it can be shown here. It is public, and permanent if you also lock the report. Only use pictures and videos you have the right to publish. It appears on the homepage only after reviewers verify the report. The video itself is never stored.')),
     h('label', { class: 'check' }, h('input', { type: 'checkbox', name: 'seal' }), h('span', {}, 'Encrypt in my browser. Only people with the link’s key can read it. Category, region and dates stay public.')),
     h('label', { class: 'check' }, h('input', { type: 'checkbox', name: 'lock' }), h('span', {}, 'Lock it. Ownership moves to a burn address so nobody, including you, can ever delete it. You cannot undo this.')),
     h('label', { class: 'check' }, h('input', { type: 'checkbox', name: 'demo', required: true }), h('span', {}, 'I understand this is a public testnet demo. I will post synthetic content only: no real people, places, footage or personal data.')),

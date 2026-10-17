@@ -179,3 +179,5 @@ figure.photo figcaption { font-size: .78rem; color: var(--muted); margin-top: 8p
 
 .card-art.has-img .shade { background: linear-gradient(to top, rgb(0 0 0 / .86), rgb(0 0 0 / .08) 78%); }
 .preview-slot { margin-top: 10px; }
+
+.remote-video { max-width: 100%; max-height: 420px; display: block; margin: 10px 0; border-radius: 6px; background: #000; }

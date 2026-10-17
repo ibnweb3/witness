@@ -54,3 +54,13 @@ Sample files on the site: /demo/synthetic-image.png (matches the media report) a
 | review: corroborated → Verified | `0x52ff14cb3b48063aaf13fd59800ed9d7678596aa7e35272bb5159924009f2802` | [0x7050736d…](https://tiramisu.explorer.arkiv.network/tx/0x7050736df4b461126b11e30e68d8dd29c10ddcecb4d728841b9c2ce5fbbaff71) |
 | review: corroborated → Verified | `0x799b848eba5c98e1147e6f69b3a069641a0b3308b0268fdb8e8ec9bfe31729ae` | [0x18f07c71…](https://tiramisu.explorer.arkiv.network/tx/0x18f07c712056093633db61e18f2435417bedae8bde9f6a4f5a6640a83e02fe51) |
 | Synthetic: report with a picture (not reviewed) | `0x124b91302a799151b82358dc595237098059db264e7e5da4bb383a37f0b0a2d4` | [0x236a0071…](https://tiramisu.explorer.arkiv.network/tx/0x236a0071b6ce1550ce35e51dde6a4a9cfd072846dd10934917751f78ba06eb50) |
+
+## Fifth seed: a video report (synthetic)
+
+| What | Entity key | Tx |
+|---|---|---|
+| report with a video fingerprint, link and still frame | `0x634f34e416f9cf4445780260839b73c494f71f34f04f1efa19979daf072f374a` | [0xc210e3ff…](https://tiramisu.explorer.arkiv.network/tx/0xc210e3ffe669276e850097b18f192676cf67933c34abd28f3a6cb84d00d7be59) |
+| review: corroborated → Verified | `0x2be68eef39ba2aef417f7ee4cc4ab024df3bd219ab5609146ba9bafe7a2e4f7c` | [0xcc28c33b…](https://tiramisu.explorer.arkiv.network/tx/0xcc28c33b03de4bb397552ddd339508cf06fbae20ba94b8d81acefce668980eb7) |
+| review: corroborated → Verified | `0xca750d445f3f9dff03a8d225500e3e9ad21286fdd5c9433a2e40968f82e558e3` | [0x81cb6dbd…](https://tiramisu.explorer.arkiv.network/tx/0x81cb6dbd44970823139a8ee75a19e17b44bc25e48679bcc3a1379fe64f104d9f) |
+
+Sample files on the site: /demo/synthetic-video.webm (4 s test pattern, matches the recorded fingerprint) and /demo/synthetic-video-poster.jpg (the still frame stored in the report).
