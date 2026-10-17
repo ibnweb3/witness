@@ -440,7 +440,12 @@ async function postView() {
     h('label', {}, 'Incident date', h('input', { type: 'date', name: 'incident', required: true, max: dateStr(Date.now()) })),
     h('label', {}, 'Title', h('input', { type: 'text', name: 'title', required: true, maxlength: 140, autocomplete: 'off' })),
     h('label', {}, 'Details', h('textarea', { name: 'body', required: true, maxlength: 20000 })),
-    h('label', {}, 'Photo or video (optional). The file itself is not uploaded anywhere. Its fingerprint (SHA-256 hash) is recorded and is public. Tick the box below if you also want a small picture shown.', h('input', { type: 'file', name: 'media', accept: 'image/*,video/*' })),
+    h('label', {}, 'Photo or video (optional). The file itself is not uploaded anywhere. Its fingerprint (SHA-256 hash) is recorded and is public. Choosing an image ticks the preview box below; untick it if you only want the fingerprint recorded.', h('input', { type: 'file', name: 'media', accept: 'image/*,video/*', onchange: (ev: Event) => {
+      // Choosing an image ticks the preview box (people expect an attached image to be shown); a video unticks it.
+      const f = (ev.target as HTMLInputElement).files?.[0]
+      const box = form.querySelector<HTMLInputElement>('input[name=embed]')
+      if (box) box.checked = !!f && f.type.startsWith('image/')
+    } })),
     h('label', {}, 'Where the image is hosted (optional https link, up to 128 bytes). Readers can load it from there after a click, and it is checked against the fingerprint when the host allows.', h('input', { type: 'url', name: 'media_url', maxlength: 128, autocomplete: 'off', placeholder: 'https://' })),
     h('label', { class: 'check' }, h('input', { type: 'checkbox', name: 'embed' }), h('span', {}, 'Also store a small preview of the image on Arkiv (shrunk to about 60 KB, location data removed) so it can be shown here. It is public, and permanent if you also lock the report. Only use images you have the right to publish. It appears on the homepage only after reviewers verify the report.')),
     h('label', { class: 'check' }, h('input', { type: 'checkbox', name: 'seal' }), h('span', {}, 'Encrypt in my browser. Only people with the link’s key can read it. Category, region and dates stay public.')),
