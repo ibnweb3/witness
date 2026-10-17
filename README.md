@@ -6,6 +6,8 @@ Built for the **Arkiv: Global Tour Stop** (Censorship Resistance track), on the 
 > **All data in this project is synthetic.** No real people, places, footage or personal data are stored.
 > Everything on Arkiv is public, so please do not post real incidents to this demo.
 
+**Live demo:** https://witness.ibnweb3lab.workers.dev · **Code:** https://github.com/ibnweb3/witness
+
 ## Why this exists
 
 In October 2020, young Nigerians filmed and streamed what was happening at the Lekki Toll Gate during the
@@ -32,6 +34,7 @@ WitNess is a small, honest answer to one part of that gap.
 - A government could block the public RPC address. The data lives on the network and can be read through any RPC, but the RPC has to be reachable.
 - Writing needs internet too. In a blackout nobody can post.
 - Reports expire unless extended. An expired report leaves the query surface, but its creation transaction stays on-chain.
+- The public Arkiv RPC gives each anonymous visitor a limited, cost-based query budget (the error is `ANON_COST_LIMITED`, and it resets about hourly). If the site shows a rate-limit message, wait a few minutes and try again. The app caches reads for 30 to 45 seconds to stay inside the budget. See `arkiv/friction.md` (F3, F4).
 - Arkiv documents a keccak Merkle-Patricia state root readable with `eth_getProof`. This UI does not verify proofs itself.
 
 ## How it uses Arkiv
