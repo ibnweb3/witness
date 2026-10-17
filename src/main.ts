@@ -242,6 +242,41 @@ function mediaCard(hash: string, type: string, url: string | null) {
     if (blobUrl) URL.revokeObjectURL(blobUrl)
     if (f.type.startsWith('image/')) { blobUrl = URL.createObjectURL(f); preview.replaceChildren(h('img', { src: blobUrl, alt: 'Preview of the file you chose' })) }
   } })
+  // Optional: show the image from the author's own https link, only after a click, and only if it matches the fingerprint
+  // (when the host allows us to read it). Raster types only, so nothing executable is ever rendered.
+  const RASTER = ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/avif']
+  let remoteBlock: Node | null = null
+  if (url && RASTER.includes(type)) {
+    const host = new URL(url).host
+    const slot = h('div', { class: 'remote' })
+    const btn = h('button', { class: 'ghost', onclick: async () => {
+      btn.disabled = true
+      slot.replaceChildren(h('p', { class: 'msg' }, `Loading from ${host}…`))
+      try {
+        const res = await fetch(url, { mode: 'cors', credentials: 'omit', referrerPolicy: 'no-referrer' })
+        if (!res.ok) throw new Error('HTTP ' + res.status)
+        const buf = await res.arrayBuffer()
+        if (buf.byteLength > 25 * 1024 * 1024) throw new Error('too large')
+        const got = await sha256Hex(new Uint8Array(buf))
+        if (got.toLowerCase() === hash.toLowerCase()) {
+          const src = URL.createObjectURL(new Blob([buf], { type }))
+          slot.replaceChildren(h('p', { class: 'msg ok' }, '✔ Loaded from the author’s link, and it matches the recorded fingerprint.'),
+            h('img', { src, class: 'remote-img', alt: 'Image from the author’s link, verified against the recorded fingerprint' }))
+        } else {
+          slot.replaceChildren(h('p', { class: 'msg err' }, '✘ The file at that link is NOT the one recorded on this report (its fingerprint differs), so it is not shown.'),
+            h('code', { class: 'hashline' }, 'found: ' + got))
+        }
+      } catch {
+        // The host may block cross-site reads or be down: show it as a plain image, clearly marked unchecked.
+        slot.replaceChildren(h('p', { class: 'msg' }, 'This host does not let us check the image against the fingerprint, so it is shown unchecked. Download it and use “Check a file” to be sure.'),
+          h('img', { src: url, class: 'remote-img', referrerPolicy: 'no-referrer', alt: 'Image from the author’s link (not checked against the fingerprint)',
+            onerror: () => slot.replaceChildren(h('p', { class: 'msg err' }, 'The image could not be loaded from that link.')) }))
+      }
+    } }, 'Load the image from the author’s link')
+    remoteBlock = h('div', {},
+      h('p', { class: 'lede', style: 'margin:12px 0 8px' }, `Optional: load the image from ${host}, the host the author chose. Nothing loads until you click, that host will see your IP address, and we have not reviewed it.`),
+      btn, slot)
+  }
   return h('div', { class: 'card mediacheck' },
     h('h2', { style: 'margin-top:0' }, 'Photo or video fingerprint'),
     h('dl', { class: 'kv' },
@@ -250,6 +285,7 @@ function mediaCard(hash: string, type: string, url: string | null) {
       url ? h('dt', {}, 'Author’s link') : null,
       url ? h('dd', {}, h('a', { href: url, target: '_blank', rel: 'noopener noreferrer nofollow' }, new URL(url).host), ' (supplied by the author, not checked or hosted by us)') : null),
     h('p', { class: 'lede', style: 'margin:12px 0 8px' }, 'The file is not stored on Arkiv or on this site. Only its fingerprint is recorded, so you can check that a copy you were given is the original. A match proves the file is unchanged since it was recorded. It does not prove its content is genuine.'),
+    remoteBlock,
     h('label', {}, 'Check a file', input), preview, out)
 }
 
@@ -372,7 +408,7 @@ async function postView() {
     h('label', {}, 'Title', h('input', { type: 'text', name: 'title', required: true, maxlength: 140, autocomplete: 'off' })),
     h('label', {}, 'Details', h('textarea', { name: 'body', required: true, maxlength: 20000 })),
     h('label', {}, 'Photo or video (optional). It is not uploaded anywhere. Only its fingerprint (SHA-256 hash) is recorded, and the hash is public.', h('input', { type: 'file', name: 'media', accept: 'image/*,video/*' })),
-    h('label', {}, 'Where the file is hosted (optional https link, up to 128 bytes)', h('input', { type: 'url', name: 'media_url', maxlength: 128, autocomplete: 'off', placeholder: 'https://' })),
+    h('label', {}, 'Where the image is hosted (optional https link, up to 128 bytes). Readers can load it from there after a click, and it is checked against the fingerprint when the host allows.', h('input', { type: 'url', name: 'media_url', maxlength: 128, autocomplete: 'off', placeholder: 'https://' })),
     h('label', { class: 'check' }, h('input', { type: 'checkbox', name: 'seal' }), h('span', {}, 'Encrypt in my browser. Only people with the link’s key can read it. Category, region and dates stay public.')),
     h('label', { class: 'check' }, h('input', { type: 'checkbox', name: 'lock' }), h('span', {}, 'Lock it. Ownership moves to a burn address so nobody, including you, can ever delete it. You cannot undo this.')),
     h('label', { class: 'check' }, h('input', { type: 'checkbox', name: 'demo', required: true }), h('span', {}, 'I understand this is a public testnet demo. I will post synthetic content only: no real people, places, footage or personal data.')),

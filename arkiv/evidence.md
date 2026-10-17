@@ -38,3 +38,10 @@ Sealed report key: `0x3f958b592db744b1b962243251b1d41cc81ada0358ffbed17faa6efb31
 | trusted review A: corroborated (media) → In review | `0x3acf7f6963f556a6e751182a132000473a06de883278cdae57d8402083665e95` | [0x73ac2c88…](https://tiramisu.explorer.arkiv.network/tx/0x73ac2c88b9fd8ec3223a1a23130e47e9049df65a51d1443d0ba08ced3649c618) |
 
 Sample files on the site: /demo/synthetic-image.png (matches the media report) and /demo/synthetic-image-tampered.png (one pixel changed, does not match).
+
+## Third seed: images linked from another host (synthetic)
+
+| What | Entity key | Tx |
+|---|---|---|
+| Synthetic: image hosted elsewhere (fingerprint matches) | `0xe7dc8e178aca6ba554c36c881441dfd011f3a2af6ae6875c0efb16887fdc9255` | [0x960fb086…](https://tiramisu.explorer.arkiv.network/tx/0x960fb086544807eff942597099c480edb688a906449b03817a23633312201071) |
+| Synthetic: link points to a different file (must be refused) | `0xbb7d9139bc26e4fe07b170278a7248627e2aa94a206df3813a0ad3b483d5fb05` | [0xa3fc0e77…](https://tiramisu.explorer.arkiv.network/tx/0xa3fc0e77dfb087648570fa625888024d7926d13ca0cb708b9a34c1d01f7fad90) |
