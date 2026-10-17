@@ -1,0 +1,110 @@
+# WitNess
+
+A public registry for documentation that no single server can switch off or quietly rewrite.
+Built for the **Arkiv: Global Tour Stop** (Censorship Resistance track), on the Arkiv **Tiramisu** testnet.
+
+> **All data in this project is synthetic.** No real people, places, footage or personal data are stored.
+> Everything on Arkiv is public, so please do not post real incidents to this demo.
+
+## Why this exists
+
+In October 2020, young Nigerians filmed and streamed what was happening at the Lekki Toll Gate during the
+#EndSARS protests. Afterward, what happened there was disputed, and the evidence sat on platforms and servers
+other people controlled. In June 2021, Twitter was suspended nationwide in Nigeria for about seven months.
+In Gaza, restricted press access and repeated communications blackouts leave documentation scattered and contested.
+
+Different places, same gap: a record is only as safe as the server that holds it.
+WitNess is a small, honest answer to one part of that gap.
+
+## What it does
+
+- **Reports are frozen.** A report is created with the `readonly` flag, so its content and attributes cannot be edited afterward.
+- **Anyone can keep a report alive.** Reports are created with `permissionlessExtension`, so any wallet can extend a report's life. The author does not have to be around.
+- **Optional lock.** The author can move ownership to a burn address in the same atomic batch, so nobody, including the author, can delete it. This cannot be undone.
+- **Optional encryption.** A report can be encrypted in the browser (AES-GCM). The key lives only in the share link's URL fragment and is never sent to any server.
+- **Reviews count only from allowlisted wallets.** The app shows a review as trusted only when its immutable on-chain `$creator` is on an allowlist published by an admin wallet. A forged review from any other wallet is shown as ignored, with the reason.
+- **Reads need none of our servers.** The site is static. Your browser queries the public Arkiv RPC directly. The Proof page runs the exact query and lets you point it at a different RPC.
+
+## What it does not do
+
+- It does **not** make anyone anonymous. The posting wallet is public, and a funding transaction can link wallets.
+- It does **not** prove a report is true. It makes a record harder to erase or rewrite, and shows who vouched.
+- A government could block the public RPC address. The data lives on the network and can be read through any RPC, but the RPC has to be reachable.
+- Writing needs internet too. In a blackout nobody can post.
+- Reports expire unless extended. An expired report leaves the query surface, but its creation transaction stays on-chain.
+- Arkiv documents a keccak Merkle-Patricia state root readable with `eth_getProof`. This UI does not verify proofs itself.
+
+## How it uses Arkiv
+
+Full detail: [`arkiv/schema.md`](arkiv/schema.md). Friction report: [`arkiv/friction.md`](arkiv/friction.md). On-chain evidence: [`arkiv/evidence.md`](arkiv/evidence.md).
+
+| Arkiv feature | Where | Why it changes what the user sees |
+|---|---|---|
+| `$creator` filtering (`eq('$creator', addr(...))`) | [`src/lib/arkiv.ts`](src/lib/arkiv.ts) `listTrustedReviews` | A review counts only if its creator is allowlisted; nobody can fake `$creator`. |
+| `createdBy()` | `listAllowlist` | The allowlist is read only from entities the admin wallet created. |
+| `readonly` + `permissionlessExtension` flags | [`src/lib/write.ts`](src/lib/write.ts) `createReport` | Frozen content; the community can keep it alive. |
+| `executeBatch` + `predictEntityKeys` + `changeOwnership` | `createReport` (lock) | Create and lock in one atomic transaction. |
+| Per-type Entity Expiration | `config.ts`, `write.ts` | Report 30 d, review 90 d, reviewer 180 d. A review outlives its report on purpose. |
+| Lifetime Extension (`extendEntity`) | `extendReport`, report page button | A report is a lease anyone can renew. |
+| Typed attributes and range queries | `listReports` | `incident_ms` is a `u64`, so the feed filters by date range on the node. |
+| Cursor pagination | `listReports` (async iteration) | Walks all pages, sorted client-side by incident date. |
+| `$expiresAt` range query | `expiringSoon` | Find reports that expire within a day. |
+| WebSocket entity events, no `fromBlock` | `watchFeed` | New and extended reports appear live without a refresh loop. |
+
+What stays **off** Arkiv on purpose: decryption keys, any media larger than the 128 KiB payload limit, reviewer real identities, and any real personal data.
+
+## Run it
+
+Requires Node 20+.
+
+```bash
+npm install
+npm run dev          # the site, reads straight from Tiramisu
+```
+
+To write data you need test GLM. The faucet at https://hub.arkiv.network/faucet requires a wallet sign-in.
+
+```bash
+# .env (never commit it): ADMIN_KEY, REPORTER_KEY, REVIEWER_KEY are three funded Tiramisu test keys
+npm run balances     # check funding
+npm run seed         # creates a synthetic reviewer, reports, reviews and one forged review; writes arkiv/evidence.md
+npm run build        # static site in dist/
+```
+
+Posting from the site uses a browser wallet (for example MetaMask), which it switches to Tiramisu (chain ID 7738577).
+
+## How judges can reproduce the Arkiv usage
+
+1. Open the live site. No login is needed.
+2. Open **Proof** and press **Run this query from my browser**. It runs `project = str('witness-reg-ibn26') AND entity_type = str('report')` against the public RPC and prints the matching report keys.
+3. Open a report that has reviews. The page lists trusted reviews, and any review from a non-allowlisted creator under "ignored", with the reason.
+4. Compare the wallet addresses in [`arkiv/evidence.md`](arkiv/evidence.md) with the creators shown on the explorer: https://tiramisu.explorer.arkiv.network
+5. Optional, needs a wallet with test GLM: press **Keep this alive** on any report, or post a new one.
+
+## Project layout
+
+```
+src/lib/arkiv.ts    queries and live events (read side)
+src/lib/write.ts    create report / review / reviewer, extend (write side)
+src/lib/crypto.ts   browser AES-GCM sealing and SHA-256
+src/lib/wallet.ts   injected wallet connection, switches to Tiramisu
+src/main.ts         pages: feed, report, post, proof
+scripts/seed.ts     synthetic data and the on-chain evidence file
+arkiv/              schema.md, friction.md, evidence.md
+```
+
+## Disclosure
+
+- Built between 9 and 18 October 2026. Pre-existing work reused: none (libraries only: `@arkiv-network/sdk`, `viem`, `vite`).
+- AI assistance: built with Claude (Anthropic) in Claude Code.
+
+## Photo credit
+
+The photograph on the About page, `public/img/endsars-lagos.jpg`, is "Protesters at the endSARS protest in Lagos, Nigeria 71" by Kaizenify, licensed
+[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), via
+[Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Protesters_at_the_endSARS_protest_in_Lagos,_Nigeria_71.jpg).
+It is shown unmodified, as background only. It is not evidence of any event described in this project. The MIT licence below covers the code, not this photo.
+
+## License
+
+MIT (code). See [LICENSE](LICENSE). The photo above keeps its own licence.

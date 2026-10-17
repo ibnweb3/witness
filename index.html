@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <title>WitNess: a record no one can switch off</title>
+  <meta name="description" content="A public registry of documentation on Arkiv. Reports are frozen, readable without our servers, and reviews count only from allowlisted wallets. Synthetic demo data." />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <script>
+    // Apply a saved theme before first paint so there is no flash.
+    try { var t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t } catch (e) {}
+  </script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <p class="banner" role="note">Synthetic demo data. No real people, places or footage are stored here. Everything on Arkiv is public.</p>
+  <header class="top">
+    <button id="menu" class="icon" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="drawer">
+      <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 5h16M2 10h16M2 15h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+    </button>
+    <a class="brand" href="#/" aria-label="WitNess home">WitNess<span>.</span></a>
+    <nav aria-label="Main">
+      <a href="#/" data-nav="feed">Home</a>
+      <a href="#/post" data-nav="post">Post</a>
+      <a href="#/proof" data-nav="proof">Proof</a>
+      <a href="#/about" data-nav="about">About</a>
+    </nav>
+    <span id="live" class="live" role="status" aria-live="polite">Connecting…</span>
+    <button id="search" class="icon" type="button" aria-label="Search reports" aria-expanded="false" aria-controls="searchbar">
+      <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="2" fill="none"/><path d="M13 13l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <button id="theme" class="icon" type="button" aria-label="Switch theme">
+      <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path class="moon" d="M16 11.5A7 7 0 0 1 8.5 4a7 7 0 1 0 7.5 7.5z" fill="currentColor"/><g class="sun" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10" cy="10" r="3.5" fill="currentColor"/><path d="M10 1.5v2M10 16.5v2M1.5 10h2M16.5 10h2M4 4l1.4 1.4M14.6 14.6L16 16M16 4l-1.4 1.4M5.4 14.6L4 16"/></g></svg>
+    </button>
+  </header>
+  <form id="searchbar" class="searchbar" role="search" hidden>
+    <input id="q" type="search" name="q" placeholder="Search titles, categories and regions" aria-label="Search reports" autocomplete="off" spellcheck="false" />
+  </form>
+  <nav id="drawer" class="drawer" aria-label="Browse" hidden></nav>
+  <main id="main" tabindex="-1"></main>
+  <footer>
+    <p>Reads go straight from your browser to the public Arkiv network (Tiramisu testnet). Built for the Arkiv Global Tour Stop. MIT licensed.</p>
+  </footer>
+  <noscript><p class="banner">This app needs JavaScript to query the network from your browser.</p></noscript>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

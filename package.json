@@ -1,0 +1,28 @@
+{
+  "name": "witness",
+  "version": "1.0.0",
+  "description": "WitNess: a public documentation registry on Arkiv (Tiramisu testnet). Synthetic demo data.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit -p .",
+    "seed": "tsx --env-file=.env scripts/seed.ts",
+    "balances": "tsx --env-file=.env scripts/balances.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "@arkiv-network/sdk": "^0.8.1",
+    "viem": "^2.57.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4"
+  }
+}
