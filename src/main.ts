@@ -5,6 +5,7 @@ import {
   clientFor, getHead, getReport, isBudgetError, listAllowlist, listReports, listReportsBy, listTrustedReviews, publicHttp, reportKeys, reviewsFor, rpcMessage, watchFeed, type Entity,
 } from './lib/arkiv'
 import { hashFile, importKey, newKey, open as openSealed, seal, sha256Hex } from './lib/crypto'
+import { previewSrc, shrinkImage, type Preview } from './lib/image'
 import { STATUS_CLASS, STATUS_EXPLAIN, STATUS_TEXT, statusFor, type ReviewLite, type Status } from './lib/verify'
 import { connectWallet } from './lib/wallet'
 import { createReport, extendReport } from './lib/write'
@@ -119,7 +120,9 @@ const titleOf = (r: Entity) => (av(r, 'sealed') === true ? 'Sealed report (encry
 
 function card(r: Entity, st: Status, size: 'hero' | 'mid' | 'small') {
   const cat = String(av(r, 'category'))
-  return h('a', { class: `card-art ${size} cat-${cat}`, href: `#/r/${r.key}` },
+  // A stranger's picture is shown on the homepage only after the council has verified the report.
+  const img = st === 'verified' ? previewSrc(decode(r)?.preview) : null
+  const el = h('a', { class: `card-art ${size} cat-${cat}${img ? ' has-img' : ''}`, href: `#/r/${r.key}` },
     h('span', { class: 'shade', 'aria-hidden': 'true' }),
     h('span', { class: 'cap' },
       h('span', { class: 'tag' }, label(cat)),
@@ -130,6 +133,8 @@ function card(r: Entity, st: Status, size: 'hero' | 'mid' | 'small') {
         h('span', { class: `badge ${STATUS_CLASS[st]}` }, STATUS_TEXT[st]),
         av(r, 'media_hash') ? h('span', { class: 'badge' }, 'file fingerprint') : null),
       h('span', { class: 'by' }, `By ${short(r.creator as string)} / ${dateStr(Number(av(r, 'incident_ms')))} / ${expiresIn(r.expiresAt as bigint)}`)))
+  if (img) { el.style.backgroundImage = `url("${img}")`; el.style.backgroundSize = 'cover'; el.style.backgroundPosition = 'center' }
+  return el
 }
 const thumb = (r: Entity) => h('span', { class: `thumb art cat-${av(r, 'category')}`, 'aria-hidden': 'true' })
 const sideItem = (r: Entity, note: string) => h('a', { class: 'rp', href: `#/r/${r.key}` }, thumb(r),
@@ -225,6 +230,20 @@ async function feedView() {
   await load()
 }
 
+function previewCard(src: string, status: Status, hasFingerprint: boolean) {
+  const slot = h('div', { class: 'preview-slot' })
+  const reveal = () => slot.replaceChildren(h('img', { src, class: 'remote-img', alt: 'Preview image stored in this report' }))
+  const note = status === 'verified' ? 'Stored on Arkiv with this report, which at least two reviewers have corroborated.'
+    : status === 'disputed' ? 'A reviewer disputes this report, so treat the image with caution. It is hidden until you choose to show it.'
+    : 'This report is not verified, so the image is hidden until you choose to show it.'
+  if (status === 'verified') reveal()
+  const btn = status === 'verified' ? null : h('button', { class: 'ghost', onclick: () => { reveal(); btn?.remove() } }, 'Show the image anyway')
+  return h('div', { class: 'card' },
+    h('h2', { style: 'margin-top:0' }, 'Preview image'),
+    h('p', { class: 'lede', style: 'margin:0 0 10px' }, note + ' It is a shrunk copy with location data removed.' + (hasFingerprint ? ' The fingerprint below belongs to the original file.' : '')),
+    btn, slot)
+}
+
 function mediaCard(hash: string, type: string, url: string | null) {
   const out = h('p', { class: 'msg', role: 'status' }, 'Choose the file you were given to compare it with this record.')
   const preview = h('div', { class: 'preview' })
@@ -304,12 +323,12 @@ async function detailView(key: `0x${string}`, keyText?: string) {
     return
   }
   const p = decode(e); const sealed = !!p?.sealed
-  let title = p?.title ?? 'Untitled', body: string = p?.body ?? ''
+  let title = p?.title ?? 'Untitled', body: string = p?.body ?? '', preview: unknown = p?.preview
   let keyPrompt: Node | null = null
   if (sealed) {
     title = 'Sealed report'; body = ''
     if (keyText) {
-      try { const o = await openSealed(p, await importKey(keyText)); title = o.title; body = o.body } catch { body = 'Could not decrypt: the key is wrong.' }
+      try { const o = await openSealed(p, await importKey(keyText)); title = o.title; body = o.body; preview = o.preview } catch { body = 'Could not decrypt: the key is wrong.' }
     } else {
       const input = h('input', { name: 'k', type: 'text', placeholder: 'Decryption key', autocomplete: 'off', spellcheck: false, required: true })
       keyPrompt = h('form', { class: 'row', onsubmit: (ev: Event) => { ev.preventDefault(); location.hash = `#/r/${key}/${encodeURIComponent(input.value.trim())}` } },
@@ -335,6 +354,8 @@ async function detailView(key: `0x${string}`, keyText?: string) {
   const mediaHash = av(e, 'media_hash') as string | undefined
   const mediaUrl = av(e, 'media_url') ? safeHttps(String(av(e, 'media_url'))) : null
   const mediaBlock = mediaHash ? mediaCard(mediaHash, String(av(e, 'media_type') ?? 'unknown'), mediaUrl) : null
+  const pSrc = previewSrc(preview)
+  const previewBlock = pSrc ? previewCard(pSrc, verdict.status, !!mediaHash) : null
   const reviewCard = (r: any, ok: boolean) => h('div', { class: 'card' },
     h('div', { class: 'row' }, h('span', { class: `chip ${ok ? 'ok' : 'bad'}` }, String(av(r, 'verdict')).replace('_', ' ')), 'by ', addrLink(r.creator as string),
       !ok && h('span', { class: 'chip bad' }, 'ignored: creator not on allowlist')),
@@ -347,6 +368,7 @@ async function detailView(key: `0x${string}`, keyText?: string) {
     h('div', { class: `status ${verdict.status}` }, h('span', { class: 'big' }, STATUS_TEXT[verdict.status]),
       h('p', {}, STATUS_EXPLAIN[verdict.status], ` (${verdict.corroborated} corroborate, ${verdict.disputed} dispute, from ${verdict.reviewers} allowlisted reviewer${verdict.reviewers === 1 ? '' : 's'}.)`)),
     keyPrompt, body ? h('div', { class: 'card pre' }, body) : null,
+    previewBlock,
     mediaBlock,
     h('h2', {}, 'Why you can trust what you see'),
     h('div', { class: 'card' }, h('dl', { class: 'kv' },
@@ -375,13 +397,10 @@ async function postView() {
     const title = String(d.get('title')).trim(), body = String(d.get('body')).trim()
     const wantSeal = d.get('seal') === 'on', lock = d.get('lock') === 'on'
     const file = d.get('media') as File | null
+    const embed = d.get('embed') === 'on'
     const mediaUrlRaw = String(d.get('media_url') ?? '').trim()
     submit.disabled = true; msg.className = 'msg'; msg.textContent = 'Preparing…'
     try {
-      let payload: Record<string, unknown> = { v: 1, sealed: false, title, body }
-      let keyText = ''
-      if (wantSeal) { const k = await newKey(); keyText = k.keyText; payload = await seal({ title, body }, k.key) }
-      if (jsonToPayload(payload).length > 128 * 1024) throw new Error('Too large: a payload is limited to 128 KiB.')
       let media: { hash: `0x${string}`; type: string; url?: string } | undefined
       if (file && file.size > 0) {
         if (file.size > 100 * 1024 * 1024) throw new Error('That file is over 100 MB, too large to fingerprint in the browser.')
@@ -393,6 +412,20 @@ async function postView() {
           media.url = mediaUrlRaw
         }
       } else if (mediaUrlRaw) throw new Error('Choose the file too, so its fingerprint can be recorded.')
+      let preview: Preview | undefined
+      if (embed) {
+        if (!file || file.size === 0 || !file.type.startsWith('image/')) throw new Error('Choose an image file to store a preview of it.')
+        msg.textContent = 'Shrinking the image in your browser…'
+        const textBytes = new TextEncoder().encode(JSON.stringify({ title, body })).length
+        const budget = Math.min(60_000, Math.floor(((126 * 1024) / (wantSeal ? 1.4 : 1) - textBytes) / 1.34) - 1024)
+        if (budget < 8_000) throw new Error('The text is too long to also store an image. Shorten it, or untick the preview.')
+        preview = await shrinkImage(file, budget)
+      }
+      const inner = { title, body, ...(preview ? { preview } : {}) }
+      let payload: Record<string, unknown> = { v: 1, sealed: false, ...inner }
+      let keyText = ''
+      if (wantSeal) { const k = await newKey(); keyText = k.keyText; payload = await seal(inner, k.key) }
+      if (jsonToPayload(payload).length > 128 * 1024) throw new Error('Too large: a payload is limited to 128 KiB.')
       msg.textContent = 'Waiting for your wallet…'
       const w = await connectWallet()
       msg.textContent = 'Sending transaction…'
@@ -407,8 +440,9 @@ async function postView() {
     h('label', {}, 'Incident date', h('input', { type: 'date', name: 'incident', required: true, max: dateStr(Date.now()) })),
     h('label', {}, 'Title', h('input', { type: 'text', name: 'title', required: true, maxlength: 140, autocomplete: 'off' })),
     h('label', {}, 'Details', h('textarea', { name: 'body', required: true, maxlength: 20000 })),
-    h('label', {}, 'Photo or video (optional). It is not uploaded anywhere. Only its fingerprint (SHA-256 hash) is recorded, and the hash is public.', h('input', { type: 'file', name: 'media', accept: 'image/*,video/*' })),
+    h('label', {}, 'Photo or video (optional). The file itself is not uploaded anywhere. Its fingerprint (SHA-256 hash) is recorded and is public. Tick the box below if you also want a small picture shown.', h('input', { type: 'file', name: 'media', accept: 'image/*,video/*' })),
     h('label', {}, 'Where the image is hosted (optional https link, up to 128 bytes). Readers can load it from there after a click, and it is checked against the fingerprint when the host allows.', h('input', { type: 'url', name: 'media_url', maxlength: 128, autocomplete: 'off', placeholder: 'https://' })),
+    h('label', { class: 'check' }, h('input', { type: 'checkbox', name: 'embed' }), h('span', {}, 'Also store a small preview of the image on Arkiv (shrunk to about 60 KB, location data removed) so it can be shown here. It is public, and permanent if you also lock the report. Only use images you have the right to publish. It appears on the homepage only after reviewers verify the report.')),
     h('label', { class: 'check' }, h('input', { type: 'checkbox', name: 'seal' }), h('span', {}, 'Encrypt in my browser. Only people with the link’s key can read it. Category, region and dates stay public.')),
     h('label', { class: 'check' }, h('input', { type: 'checkbox', name: 'lock' }), h('span', {}, 'Lock it. Ownership moves to a burn address so nobody, including you, can ever delete it. You cannot undo this.')),
     h('label', { class: 'check' }, h('input', { type: 'checkbox', name: 'demo', required: true }), h('span', {}, 'I understand this is a public testnet demo. I will post synthetic content only: no real people, places, footage or personal data.')),

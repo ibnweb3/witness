@@ -45,3 +45,12 @@ Sample files on the site: /demo/synthetic-image.png (matches the media report) a
 |---|---|---|
 | Synthetic: image hosted elsewhere (fingerprint matches) | `0xe7dc8e178aca6ba554c36c881441dfd011f3a2af6ae6875c0efb16887fdc9255` | [0x960fb086…](https://tiramisu.explorer.arkiv.network/tx/0x960fb086544807eff942597099c480edb688a906449b03817a23633312201071) |
 | Synthetic: link points to a different file (must be refused) | `0xbb7d9139bc26e4fe07b170278a7248627e2aa94a206df3813a0ad3b483d5fb05` | [0xa3fc0e77…](https://tiramisu.explorer.arkiv.network/tx/0xa3fc0e77dfb087648570fa625888024d7926d13ca0cb708b9a34c1d01f7fad90) |
+
+## Fourth seed: reports with an embedded preview image (synthetic)
+
+| What | Entity key | Tx |
+|---|---|---|
+| Synthetic: report with a picture (verified) | `0x9283d92f22b0ec99dfbaf4624c40625efb289794e37803c8bbc0e1d3de5a7f23` | [0x4fb750e2…](https://tiramisu.explorer.arkiv.network/tx/0x4fb750e23bb20f026fb9c4a974fa14372dc8a765366e19165187c30637352893) |
+| review: corroborated → Verified | `0x52ff14cb3b48063aaf13fd59800ed9d7678596aa7e35272bb5159924009f2802` | [0x7050736d…](https://tiramisu.explorer.arkiv.network/tx/0x7050736df4b461126b11e30e68d8dd29c10ddcecb4d728841b9c2ce5fbbaff71) |
+| review: corroborated → Verified | `0x799b848eba5c98e1147e6f69b3a069641a0b3308b0268fdb8e8ec9bfe31729ae` | [0x18f07c71…](https://tiramisu.explorer.arkiv.network/tx/0x18f07c712056093633db61e18f2435417bedae8bde9f6a4f5a6640a83e02fe51) |
+| Synthetic: report with a picture (not reviewed) | `0x124b91302a799151b82358dc595237098059db264e7e5da4bb383a37f0b0a2d4` | [0x236a0071…](https://tiramisu.explorer.arkiv.network/tx/0x236a0071b6ce1550ce35e51dde6a4a9cfd072846dd10934917751f78ba06eb50) |

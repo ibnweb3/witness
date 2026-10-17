@@ -176,3 +176,6 @@ figure.photo figcaption { font-size: .78rem; color: var(--muted); margin-top: 8p
 .profilehead { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 6px; }
 
 .remote-img { max-width: 100%; max-height: 420px; display: block; margin-top: 10px; border-radius: 6px; background: var(--panel); }
+
+.card-art.has-img .shade { background: linear-gradient(to top, rgb(0 0 0 / .86), rgb(0 0 0 / .08) 78%); }
+.preview-slot { margin-top: 10px; }
