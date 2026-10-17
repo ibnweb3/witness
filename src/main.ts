@@ -2,7 +2,7 @@ import './style.css'
 import { jsonToPayload } from '@arkiv-network/sdk'
 import { ADMIN, BURN, EXPLORER, PROJECT, REPORT_DAYS } from './config'
 import {
-  clientFor, getHead, getReport, isBudgetError, listAllowlist, listReports, listReportsBy, listTrustedReviews, reportKeys, reviewsFor, rpcMessage, watchFeed, type Entity,
+  clientFor, getHead, getReport, isBudgetError, listAllowlist, listReports, listReportsBy, listTrustedReviews, publicHttp, reportKeys, reviewsFor, rpcMessage, watchFeed, type Entity,
 } from './lib/arkiv'
 import { hashFile, importKey, newKey, open as openSealed, seal, sha256Hex } from './lib/crypto'
 import { STATUS_CLASS, STATUS_EXPLAIN, STATUS_TEXT, statusFor, type ReviewLite, type Status } from './lib/verify'
@@ -425,10 +425,14 @@ async function proofView() {
   const run = h('button', { onclick: async () => {
     run.disabled = true; out.textContent = 'Querying…'
     try {
-      const c = clientFor(rpc.value.trim())
-      const [block, res] = await Promise.all([c.getBlockNumber(), c.query(q, { select: { key: true, creator: true }, limit: 200 })])
-      out.textContent = `RPC:   ${rpc.value.trim()}\nblock: ${block}\nquery: ${q}\nmatched ${res.entities.length} report(s)\n\n` + res.entities.slice(0, 20).map(x => `${x.key}  creator ${x.creator}`).join('\n')
-    } catch (err: any) { out.textContent = 'Failed: ' + (err?.shortMessage ?? err?.message ?? err) } finally { run.disabled = false }
+      // With the default address we use the same connection as the rest of this site (it carries an Arkiv access key, because the
+      // anonymous query budget is usually empty). Any other address is queried exactly as typed, with no key.
+      const url = rpc.value.trim()
+      const useSite = url === 'https://rpc.tiramisu.db-chain.testnet.arkiv.network'
+      const c = useSite ? publicHttp : clientFor(url)
+      const [block, res] = await Promise.all([c.getBlockNumber(), c.query(q, { select: { key: true, creator: true }, limit: 100 })])
+      out.textContent = `RPC:   ${url}${useSite ? '  (this site adds an Arkiv access key for its rate limit)' : ''}\nblock: ${block}\nquery: ${q}\nmatched ${res.entities.length} report(s)\n\n` + res.entities.slice(0, 20).map(x => `${x.key}  creator ${x.creator}`).join('\n')
+    } catch (err: any) { out.textContent = 'Failed: ' + rpcMessage(err) } finally { run.disabled = false }
   } }, 'Run this query from my browser')
   let reviewers: HTMLElement = h('p', {}, 'Loading…')
   $main.replaceChildren(h('h1', {}, 'Proof, in one page'),
