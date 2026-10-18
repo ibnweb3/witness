@@ -155,6 +155,49 @@ const thumb = (r: Entity) => h('span', { class: `thumb art cat-${av(r, 'category
 const sideItem = (r: Entity, note: string) => h('a', { class: 'rp', href: `#/r/${r.key}` }, thumb(r),
   h('span', {}, h('span', { class: 't' }, titleOf(r)), h('span', { class: 'd' }, note)))
 
+// Viewers can turn the blur on unverified pictures off (it stays on by default). Stored only in this browser.
+const BLUR_KEY = 'blur-unverified'
+const blurOn = () => { try { return localStorage.getItem(BLUR_KEY) !== 'off' } catch { return true } }
+const applyBlur = () => document.documentElement.classList.toggle('noblur', !blurOn())
+applyBlur()
+
+const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches
+
+/** The big homepage card as an autoplaying news slideshow. Pauses on hover, focus, when off-screen or when the tab is hidden,
+ *  has previous/next, dots and an explicit pause button, and does not autoplay for people who prefer reduced motion. */
+function slideshow(slides: Entity[], st: (r: Entity) => Status) {
+  const root = h('div', { class: 'slides hero', role: 'region', 'aria-roledescription': 'carousel', 'aria-label': 'Latest news' })
+  const cards = slides.map(r => { const c = card(r, st(r), 'hero'); c.classList.add('slide'); return c })
+  let idx = 0, userPaused = reduceMotion(), hoverPaused = false, offscreen = false
+  const dots = slides.map((_, i) => h('button', { class: 'dot', type: 'button', 'aria-label': `Show slide ${i + 1} of ${slides.length}`, onclick: () => { go(i); userPaused = true; sync() } }))
+  const pauseBtn = h('button', { class: 'sbtn', type: 'button', onclick: () => { userPaused = !userPaused; sync() } })
+  const prev = h('button', { class: 'sbtn', type: 'button', 'aria-label': 'Previous slide', onclick: () => go(idx - 1) }, '‹')
+  const next = h('button', { class: 'sbtn', type: 'button', 'aria-label': 'Next slide', onclick: () => go(idx + 1) }, '›')
+  function go(i: number) {
+    idx = (i + slides.length) % slides.length
+    cards.forEach((c, k) => { c.classList.toggle('active', k === idx); c.setAttribute('aria-hidden', String(k !== idx)); c.tabIndex = k === idx ? 0 : -1 })
+    dots.forEach((d, k) => d.setAttribute('aria-current', String(k === idx)))
+  }
+  function sync() {
+    pauseBtn.textContent = userPaused ? 'Play' : 'Pause'
+    pauseBtn.setAttribute('aria-label', userPaused ? 'Play slideshow' : 'Pause slideshow')
+    root.setAttribute('aria-live', userPaused || hoverPaused ? 'polite' : 'off')
+  }
+  root.append(...cards, h('div', { class: 'sctrl' }, prev, pauseBtn, next), h('div', { class: 'sdots' }, ...dots))
+  root.addEventListener('mouseenter', () => { hoverPaused = true; sync() })
+  root.addEventListener('mouseleave', () => { hoverPaused = false; sync() })
+  root.addEventListener('focusin', () => { hoverPaused = true; sync() })
+  root.addEventListener('focusout', () => { hoverPaused = false; sync() })
+  new IntersectionObserver(([e]) => { offscreen = !e.isIntersecting }).observe(root)
+  const timer = window.setInterval(() => {
+    if (!root.isConnected) { clearInterval(timer); return } // the feed was re-rendered: stop this one
+    if (userPaused || hoverPaused || offscreen || document.hidden) return
+    go(idx + 1)
+  }, 6000)
+  go(0); sync()
+  return root
+}
+
 async function feedView() {
   setNav('feed'); onLive = undefined
   const params = new URLSearchParams(location.hash.split('?')[1] ?? '')
@@ -187,7 +230,11 @@ async function feedView() {
           h('li', {}, h('b', {}, 'Read from the chain.'), ' No server of ours sits in the path.'))),
       h('p', { class: 'wh-caption' }, 'The oath is spoken. The record keeps it.'),
       h('span', { class: 'sr' }, 'Illustration: a silhouetted witness raising a hand to take an oath at a witness stand.')),
-    h('details', { class: 'filterbar', open: active }, h('summary', {}, active ? 'Filters (active)' : 'Filters'), form, active ? h('a', { href: '#/' }, 'Clear filters') : null),
+    h('div', { class: 'toolrow' },
+      h('details', { class: 'filterbar', open: active }, h('summary', {}, active ? 'Filters (active)' : 'Filters'), form, active ? h('a', { href: '#/' }, 'Clear filters') : null),
+      h('label', { class: 'check blurswitch' },
+        h('input', { type: 'checkbox', checked: blurOn(), onchange: (ev: Event) => { try { localStorage.setItem(BLUR_KEY, (ev.target as HTMLInputElement).checked ? 'on' : 'off') } catch { /* storage blocked */ } applyBlur() } }),
+        h('span', {}, 'Blur pictures on unverified reports'))),
     out)
 
   let data: { reports: Entity[]; reviews: Map<string, ReviewLite[]> } | null = null
@@ -207,9 +254,14 @@ async function feedView() {
       out.replaceChildren(h('p', { class: 'count' }, `${rs.length} report${rs.length > 1 ? 's' : ''}${q ? ` matching “${searchQ}”` : ''}`), h('div', { class: 'grid3' }, ...rs.map(r => card(r, n(r), 'mid'))))
       return
     }
-    const heroes = rs.slice(0, 3), rest = rs.slice(3)
-    const hero = h('div', { class: `hero-grid${heroes.length === 1 ? ' one' : ''}` },
-      card(heroes[0], n(heroes[0]), 'hero'), ...heroes.slice(1).map(r => card(r, n(r), 'small')))
+    const newsRs = rs.filter(r => sourceOf(decode(r)?.source) && previewSrc(decode(r)?.preview))
+    const slides = newsRs.length >= 2 ? newsRs.slice(0, 5) : []
+    const pool = rs.filter(r => !slides.includes(r))
+    const heroes = slides.length ? pool.slice(0, 2) : pool.slice(0, 3)
+    const rest = pool.slice(heroes.length)
+    const lead = slides.length ? slideshow(slides, n) : card(heroes[0], n(heroes[0]), 'hero')
+    const smalls = slides.length ? heroes : heroes.slice(1)
+    const hero = h('div', { class: `hero-grid${smalls.length === 0 ? ' one' : ''}` }, lead, ...smalls.map(r => card(r, n(r), 'small')))
     const sections: Node[] = []
     for (const cat of CATEGORIES) {
       const g = rest.filter(r => av(r, 'category') === cat)

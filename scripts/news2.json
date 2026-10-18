@@ -1,0 +1,322 @@
+[
+  {
+    "category": "procurement",
+    "region": "europe",
+    "published": "2026-05-08",
+    "image": [
+      "evcharge",
+      1
+    ],
+    "title": "Analysis: Europe's green procurement ambition has a measurement problem",
+    "body": "In a German test sample, green-tagged construction contracts saved an estimated 42 million kg of CO2e against a conventional baseline, and tagging nearly all construction spend as green could save about 898 million kg more. But only 125 vehicle contracts and 5,623 construction records were usable out of 2.5 million rows analysed, so the authors recommend binding guidance on the environmental tag and mandatory structured reporting of quantities.",
+    "source": {
+      "publisher": "Open Contracting Partnership",
+      "title": "Europe's sustainable public procurement ambition has a measurement problem. The data to fix it already exists.",
+      "url": "https://www.open-contracting.org/2026/05/08/europes-sustainable-public-procurement-ambition-has-a-measurement-problem-the-data-to-fix-it-already-exists/"
+    }
+  },
+  {
+    "category": "procurement",
+    "region": "europe",
+    "published": "2026-02-06",
+    "image": [
+      "euflag",
+      4
+    ],
+    "title": "Open Contracting Partnership: transparency and data should drive EU procurement reform",
+    "body": "OCP notes that public procurement accounts for one in every three euros governments spend in Europe, yet EU-level visibility covers only about 20 percent of spending. It argues that all public contracts above a low threshold, such as 30,000 euros, should be published on national digital portals, and says only about 60 percent of Member States publish any below-threshold data as open data.",
+    "source": {
+      "publisher": "Open Contracting Partnership",
+      "title": "A smarter single market: why transparency and data must drive EU procurement reform",
+      "url": "https://www.open-contracting.org/2026/02/06/a-smarter-single-market-why-transparency-and-data-must-drive-eu-procurement-reform/"
+    }
+  },
+  {
+    "category": "procurement",
+    "region": "europe",
+    "published": "2026-08-03",
+    "image": [
+      "eu",
+      1
+    ],
+    "title": "OCP on the EU's draft Public Procurement Act: a digital backbone",
+    "body": "Reviewing a leaked draft of the EU's new Public Procurement Act, the Open Contracting Partnership notes it would make national and EU procurement data spaces mandatory and require below-threshold contracts to flow into them from 10,000 euros, down from the 30,000 OCP had proposed. OCP asks that data use, not just publication, be the goal, that Member State systems be funded, and that incomplete or incorrect notices carry legal consequences.",
+    "source": {
+      "publisher": "Open Contracting Partnership",
+      "title": "A digital backbone for EU's procurement vision: Our take on the current regulation draft",
+      "url": "https://www.open-contracting.org/2026/08/03/a-digital-backbone-for-eus-procurement-vision-our-take-on-the-current-regulation-draft/"
+    }
+  },
+  {
+    "category": "procurement",
+    "region": "global",
+    "published": "2026-10-02",
+    "image": [
+      "magnify",
+      3
+    ],
+    "title": "Open Contracting Partnership: AI won't fix procurement corruption, but may help catch it",
+    "body": "The article says Brazil's ALICE system reviewed nearly 191,000 procurement processes in 2023 and triggered audits linked to contracts worth over 4.5 billion dollars, and that Chile's procurement agency has automated detection of 15 types of compliance breaches. It recommends keeping humans in the loop, making AI models transparent with audit trails, and using structured data standards such as OCDS, because AI cannot conjure data that was never recorded.",
+    "source": {
+      "publisher": "Open Contracting Partnership",
+      "title": "AI won't fix corruption in public procurement, but it may help you catch it",
+      "url": "https://www.open-contracting.org/2026/10/02/ai-wont-fix-corruption-in-public-procurement-but-it-may-help-you-catch-it/"
+    }
+  },
+  {
+    "category": "other",
+    "region": "global",
+    "published": "2026-06-01",
+    "image": [
+      "code",
+      6
+    ],
+    "title": "Wiz: npm packages under a Red Hat namespace compromised in the 'Miasma' attack",
+    "body": "Wiz reports that at least 32 package releases under the @redhat-cloud-services npm namespace contained unauthorised changes, pushed through a compromised employee GitHub account that bypassed code review. The malicious releases ran an obfuscated script at install time, and the compromised workflow published packages that still carried valid provenance attestations. Wiz advises rotating tokens and secrets and strengthening dependency allowlisting and monitoring.",
+    "source": {
+      "publisher": "Wiz",
+      "title": "Miasma: Supply Chain Attack Targeting RedHat npm Packages",
+      "url": "https://www.wiz.io/blog/miasma-supply-chain-attack-targeting-redhat-npm-packages"
+    }
+  },
+  {
+    "category": "other",
+    "region": "global",
+    "published": "2026-05-19",
+    "image": [
+      "boxes",
+      1
+    ],
+    "title": "Socket: a wave of npm attacks hit the @antv ecosystem",
+    "body": "Socket reports that on 19 May 2026, 639 compromised package versions across 323 packages were published in the Mini Shai-Hulud campaign, mostly in @antv packages, including one with about 1.1 million weekly downloads. The malicious install hook harvests developer and CI/CD secrets, sends them to an external endpoint, and uses stolen npm credentials to republish other packages.",
+    "source": {
+      "publisher": "Socket",
+      "title": "Mini Shai-Hulud Hits @antv Ecosystem, 639 Compromised npm Package Versions",
+      "url": "https://www.socket.dev/blog/antv-packages-compromised"
+    }
+  },
+  {
+    "category": "other",
+    "region": "global",
+    "published": "2026-10-05",
+    "image": [
+      "circuit",
+      1
+    ],
+    "title": "UN rights chief: the clock on AI regulation is ticking",
+    "body": "At an AI and human rights summit in Oxford, the UN High Commissioner for Human Rights warned that the world is running short of time to set safeguards for artificial intelligence, and welcomed a joint call, backed by 29 states and the European Union, for tighter control of frontier AI models.",
+    "source": {
+      "publisher": "UN News",
+      "title": "'The clock on AI regulation is ticking', warns UN rights chief",
+      "url": "https://news.un.org/en/story/2026/10/1168529"
+    }
+  },
+  {
+    "category": "other",
+    "region": "global",
+    "published": "2026-10-15",
+    "image": [
+      "brain",
+      2
+    ],
+    "title": "UN report warns that neural data needs stronger protection",
+    "body": "A UN Secretary-General report presented to the General Assembly warns that neurotechnology is advancing faster than the laws meant to protect human rights, and that neural data from gaming or wellness devices could one day be used as evidence in court. It calls for banning coercive and abusive uses and for stronger safeguards such as informed consent, oversight and protection of neural data.",
+    "source": {
+      "publisher": "UN News",
+      "title": "Could your brain data be used against you? UN calls for limits on neurotechnology",
+      "url": "https://news.un.org/en/story/2026/10/1168609"
+    }
+  },
+  {
+    "category": "public_safety",
+    "region": "global",
+    "published": "2026-05-01",
+    "image": [
+      "mic",
+      2
+    ],
+    "title": "UN rights office: attacks on media workers must end",
+    "body": "The UN High Commissioner for Human Rights said Lebanon is the deadliest country for media workers so far in 2026 and that his office has verified the killing of nearly 300 journalists in Gaza since October 2023. He also voiced concern that three-quarters of women journalists have suffered online abuse such as smear campaigns and threats of sexual violence.",
+    "source": {
+      "publisher": "UN News",
+      "title": "Attacks on media workers must end, UN urges",
+      "url": "https://news.un.org/en/story/2026/05/1167424"
+    }
+  },
+  {
+    "category": "public_safety",
+    "region": "global",
+    "published": "2026-04-30",
+    "image": [
+      "mic",
+      5
+    ],
+    "title": "Sudanese Journalists Syndicate wins UNESCO press freedom prize",
+    "body": "UNESCO announced that the Sudanese Journalists Syndicate will receive its World Press Freedom Prize for condemning attacks on media workers during the civil war that began in April 2023. The syndicate has recorded 32 journalist deaths and about 556 violations against media workers, and UNESCO reports that 90 percent of Sudan's media infrastructure has been destroyed.",
+    "source": {
+      "publisher": "UN News",
+      "title": "Sudanese journalists awarded UNESCO press freedom prize",
+      "url": "https://news.un.org/en/story/2026/04/1167420"
+    }
+  },
+  {
+    "category": "public_health",
+    "region": "global",
+    "published": "2026-09-30",
+    "image": [
+      "heat",
+      2
+    ],
+    "title": "WHO releases guidance to prevent heat illness at mass gatherings",
+    "body": "WHO's new guidance draws on a review of studies from 1980 to 2025 covering nearly 500,000 medical encounters at mass gatherings, including more than 22,000 heat-related illnesses. It says that when on-site medical care is well organised, over 90 percent of patients can be treated at the venue, easing pressure on local hospitals. The most effective approaches combine eight measures, from safe water and cooling facilities to schedule changes and crowd management.",
+    "source": {
+      "publisher": "World Health Organization",
+      "title": "WHO releases new guidance to prevent heat-related illness at mass gatherings",
+      "url": "https://www.who.int/news/item/30-09-2026-who-releases-new-guidance-to-prevent-heat-related-illness-at-mass-gatherings"
+    }
+  },
+  {
+    "category": "public_health",
+    "region": "global",
+    "published": "2026-09-14",
+    "image": [
+      "dog",
+      5
+    ],
+    "title": "Chile becomes the first South American country validated for eliminating dog-transmitted rabies",
+    "body": "WHO has validated Chile as the first country in South America to eliminate dog-transmitted rabies as a public health problem. Chile's last reported human case transmitted by dogs was in 1972. Validation requires at least two years without such human deaths and proof of strong surveillance, laboratory, vaccination and response systems, reviewed by an independent expert group. WHO adds that human cases of dog-mediated rabies in the Americas have fallen by more than 98 percent since 1983.",
+    "source": {
+      "publisher": "World Health Organization",
+      "title": "Chile becomes first country in South America validated for eliminating dog-transmitted rabies as a public health problem",
+      "url": "https://www.who.int/news/item/14-09-2026-chile-becomes-first-country-in-south-america-validated-for-eliminating-dog-transmitted-rabies-as-a-public-health-problem"
+    }
+  },
+  {
+    "category": "public_health",
+    "region": "global",
+    "published": "2026-09-25",
+    "image": [
+      "flu",
+      6
+    ],
+    "title": "WHO announces flu vaccine recommendations for the 2027 southern hemisphere season",
+    "body": "After an international consultation, WHO has recommended the virus makeup for flu vaccines for the 2027 southern hemisphere season, with different selections for egg-based vaccines and for cell-culture, recombinant and nucleic-acid vaccines. WHO convenes its experts twice a year to review global surveillance data. National regulators and manufacturers use the recommendations to produce and license vaccines; WHO does not license them itself.",
+    "source": {
+      "publisher": "World Health Organization",
+      "title": "Recommendations announced for influenza vaccine composition for the 2027 southern hemisphere influenza season",
+      "url": "https://www.who.int/news/item/25-09-2026-recommendations-announced-for-influenza-vaccine-composition-for-the-2027-southern-hemisphere-influenza-season"
+    }
+  },
+  {
+    "category": "environment",
+    "region": "global",
+    "published": "2026-10-06",
+    "image": [
+      "drought",
+      4
+    ],
+    "title": "UNICEF: over 347 million children could face extreme dry or wet weather from El Nino",
+    "body": "UNICEF estimates that more than 347 million children in nearly 100 countries and territories may face unusually dry or wet conditions between October and December 2026, about 190 million of them in Asia and the Pacific.",
+    "source": {
+      "publisher": "UN News",
+      "title": "From drought to deluge: 'Super' El Niño's expanding reach",
+      "url": "https://news.un.org/en/story/2026/10/1168537"
+    }
+  },
+  {
+    "category": "environment",
+    "region": "global",
+    "published": "2026-10-03",
+    "image": [
+      "foodwaste",
+      1
+    ],
+    "title": "UN Environment Programme: rotting food causes up to 10 percent of global emissions",
+    "body": "UNEP says rotting food accounts for up to 10 percent of global greenhouse gas emissions, about five times the aviation sector. More than one billion meals go uneaten every day and households account for 60 percent of that waste, according to UNEP; the UN Food and Agriculture Organization says food that is never eaten uses land equal to about 28 percent of the world's farmland.",
+    "source": {
+      "publisher": "UN News",
+      "title": "Rotting food waste emits 5 times more greenhouse gases than planes",
+      "url": "https://news.un.org/en/story/2026/10/1168507"
+    }
+  },
+  {
+    "category": "public_safety",
+    "region": "global",
+    "published": "2026-05-09",
+    "image": [
+      "printing",
+      2
+    ],
+    "title": "UNESCO: press freedom has declined 10 percent worldwide",
+    "body": "UNESCO's 2026 World Trends Report on press freedom, presented at the World Press Freedom Day conference in Zambia, records a 10 percent global decline in press freedom and a 48 percent increase in efforts to control or restrict media. It says 85 percent of killings of journalists remain unpunished and that over 54 percent of global advertising revenue is concentrated in digital platforms.",
+    "source": {
+      "publisher": "UNESCO",
+      "title": "Press Freedom Declines Globally, Experts Warn at 2026 World Press Freedom Day Conference in Zambia",
+      "url": "https://www.unesco.org/en/articles/press-freedom-declines-globally-experts-warn-2026-world-press-freedom-day-conference-zambia"
+    }
+  },
+  {
+    "category": "public_safety",
+    "region": "global",
+    "published": "2026-10-01",
+    "image": [
+      "flood",
+      1
+    ],
+    "title": "ILO: Nepal floods threaten jobs well beyond the disaster zone",
+    "body": "Authorities report more than 1,450 deaths and 5,786 people still missing after the late-August flash floods in northern Nepal. The ILO estimates about 21,400 employed people live within four kilometres of the flood footprint, and says the floods severely damaged transport infrastructure at the Rasuwa crossing, which handles nearly half of Nepal's exports to China.",
+    "source": {
+      "publisher": "UN News",
+      "title": "Nepal floods threaten jobs and livelihoods beyond disaster zone: ILO",
+      "url": "https://news.un.org/en/story/2026/10/1168500"
+    }
+  },
+  {
+    "category": "public_health",
+    "region": "global",
+    "published": "2026-09-29",
+    "image": [
+      "cholera",
+      2
+    ],
+    "title": "WHO: cholera deaths in 2025 were the highest reported since 1999",
+    "body": "Forty-seven countries reported 451,499 cholera cases and 7,870 deaths to WHO in 2025, with deaths up 30 percent on the year before; seven countries accounted for about 90 percent of cases and deaths. In the African meningitis belt, 24 of 26 countries reported 21,526 suspected meningitis cases and 971 deaths. For plague, ten countries reported suspected cases between 2019 and 2025, with an 11 percent case fatality rate.",
+    "source": {
+      "publisher": "World Health Organization",
+      "title": "WHO reports latest global trends in cholera, meningitis and plague",
+      "url": "https://www.who.int/news/item/29-09-2026-who-reports-latest-global-trends-in-cholera--meningitis-and-plague"
+    }
+  },
+  {
+    "category": "environment",
+    "region": "global",
+    "published": "2026-10-08",
+    "image": [
+      "glacier",
+      6
+    ],
+    "title": "UN deputy chief: overshooting 1.5 degrees is not a reason to give up",
+    "body": "Ahead of the COP31 climate summit, the UN Deputy Secretary-General said the world is heading past the 1.5 degree limit and urged countries to keep working to bring temperatures back below it. She noted that 655 million people still lack electricity and called for delivery of the COP28 pledges to move away from fossil fuels, triple renewable capacity and double energy efficiency by 2030.",
+    "source": {
+      "publisher": "UN News",
+      "title": "'Overshoot is not a reason to surrender': UN calls for accelerated climate action ahead of COP31 summit",
+      "url": "https://news.un.org/en/story/2026/10/1168555"
+    }
+  },
+  {
+    "category": "environment",
+    "region": "global",
+    "published": "2026-10-15",
+    "image": [
+      "forest",
+      1
+    ],
+    "title": "UN report: fewer than half of national biodiversity targets are on track",
+    "body": "A new UN report released before the COP17 biodiversity conference in Yerevan finds that fewer than half of national targets are on track. Even if current commitments are met, only 26 percent of land and 12 percent of the ocean would be protected by 2030, against a 30 percent goal. Nearly 90 percent of parties to the convention have set national targets, and more than 70 percent have measured and reported on results.",
+    "source": {
+      "publisher": "UN News",
+      "title": "The world is waging a 'war on nature' as progress on biodiversity targets lags",
+      "url": "https://news.un.org/en/story/2026/10/1168607"
+    }
+  }
+]
