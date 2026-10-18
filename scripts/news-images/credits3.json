@@ -1,0 +1,38 @@
+[
+ {
+  "item": 0,
+  "file": "scripts/news-images/301.jpg",
+  "w": 800,
+  "h": 534,
+  "bytes": 49772,
+  "title": "FEMA - 44325 - Blue tarp on a tornado damaged home in Oklahoma",
+  "author": "Win Henderson",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "page": "https://commons.wikimedia.org/wiki/File:FEMA_-_44325_-_Blue_tarp_on_a_tornado_damaged_home_in_Oklahoma.jpg"
+ },
+ {
+  "item": 1,
+  "file": "scripts/news-images/302.jpg",
+  "w": 800,
+  "h": 600,
+  "bytes": 54819,
+  "title": "Loxodonta africana - drinking",
+  "author": "Hans Hillewaert",
+  "license": "CC BY-SA 3.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Loxodonta_africana_-_drinking.jpg"
+ },
+ {
+  "item": 2,
+  "file": "scripts/news-images/303.jpg",
+  "w": 800,
+  "h": 800,
+  "bytes": 25763,
+  "title": "NASA-Apollo8-Dec24-Earthrise",
+  "author": "NASA/Bill Anders",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "page": "https://commons.wikimedia.org/wiki/File:NASA-Apollo8-Dec24-Earthrise.jpg"
+ }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "category": "public_safety", "region": "global", "published": "2026-10-13", "image": ["damage", 6],
+    "title": "UN: disasters cost an estimated 228 billion dollars in housing losses every year",
+    "body": "UN News reports that damage to housing accounts for 43 percent of the direct cost of cyclones, floods, tsunamis and earthquakes, according to the UN disaster risk reduction office. People who received an early warning and had both a household disaster plan and confidence in protecting themselves acted on it far more often, 83 percent, than those with neither, 27 percent. The International Organization for Migration helped 1.4 million people in 2025, across 39 countries, with disaster risk reduction programmes.",
+    "source": { "publisher": "UN News", "title": "Disasters cost $228 billion in housing losses every year", "url": "https://news.un.org/en/story/2026/10/1168583" }
+  },
+  {
+    "category": "environment", "region": "global", "published": "2026-08-04", "image": ["savanna", 1],
+    "title": "UN: Africans bear the brunt of biodiversity loss",
+    "body": "The Executive Secretary of the Convention on Biological Diversity said the world spends about 30 times more money destroying nature than protecting it. A recent study cited by UN News says Africa holds 25 percent of the world's biodiversity but has lost about 24 percent of its species since pre-industrial times. Reports from 125 countries have been submitted to the Convention, and its COP17 meeting opens on 19 October.",
+    "source": { "publisher": "UN News", "title": "Africans bear the brunt of biodiversity loss", "url": "https://news.un.org/en/story/2026/08/1168078" }
+  },
+  {
+    "category": "environment", "region": "global", "published": "2026-10-16", "image": ["earth", 3],
+    "title": "UN: as disasters mount, the next climate summit faces a test of trust",
+    "body": "UN News reports that the President of the UN General Assembly warned this year's El Nino could be among the strongest since at least 1950, and that current climate policies put the world on track for about 2.8 degrees of warming. Ethiopia's ambassador said Africa produces about 3 percent of global greenhouse gas emissions yet faces some of the most severe impacts. The COP31 conference is set for Antalya, Turkiye, from 9 to 20 November.",
+    "source": { "publisher": "UN News", "title": "As disasters mount, next UN climate summit faces a test of trust", "url": "https://news.un.org/en/story/2026/10/1168617" }
+  }
+]

@@ -119,3 +119,11 @@ Sample files on the site: /demo/synthetic-video.webm (4 s test pattern, matches 
 | WHO: cholera deaths in 2025 were the highest reported since 1999 | `0x87f5298036869610fe05b7c9ac9c10d9682050d6b26651a214907619b7fadcfa` | [0x5210cb2a…](https://tiramisu.explorer.arkiv.network/tx/0x5210cb2a7139d692dd6592080e21b3fe966cc6e1322613889c48d2618bbf4be7) |
 | UN deputy chief: overshooting 1.5 degrees is not a reason to give up | `0xab85c0f54033e456ba669bd55537465553dcb40dec8a6779955906befdf3b480` | [0x73e22d19…](https://tiramisu.explorer.arkiv.network/tx/0x73e22d19ed1fda49e1f8767a1ed2fe23a1a314491cbea4844bffd5c15a262441) |
 | UN report: fewer than half of national biodiversity targets are on tra | `0xd72e80f64730077daa6e74746a58da4d5df189dfef18fbb3771b32196b8eb1bf` | [0x8c3e6bda…](https://tiramisu.explorer.arkiv.network/tx/0x8c3e6bdaa73afa320ef468a22ee9dd4fda97f92e85982699189dc48bcc9c99d5) |
+
+## Ninth seed: three more sample news items with sources and freely licensed pictures (news desk wallet 0xD9a4606f33f2C29F8C2D943Eaf5B35e159154c88)
+
+| What | Entity key | Tx |
+|---|---|---|
+| UN: disasters cost an estimated 228 billion dollars in housing losses  | `0x117616f0b687b5a055a4eb985607d5607b462f26d6c3f431e16bfdea306acd72` | [0x3368413e…](https://tiramisu.explorer.arkiv.network/tx/0x3368413ec181fec1b40361bf0859b791714c4330a29f5e9653956c3b2688d87a) |
+| UN: Africans bear the brunt of biodiversity loss | `0x71f3a21d29536832da06bf8f2238f7dd8533330f9e3db1f559d018d80532d104` | [0x2346aab7…](https://tiramisu.explorer.arkiv.network/tx/0x2346aab7952e1a478ba2e49d5ea558f8f4f0dc440b617cb57f11c9a0b3e3625b) |
+| UN: as disasters mount, the next climate summit faces a test of trust | `0x59acc747d4fd8324adf0916f30ce3decfb7ad2e08b2fe034be2e62cf4940409d` | [0xc2dc946d…](https://tiramisu.explorer.arkiv.network/tx/0xc2dc946d505555e1169b26ecffbca6568e34242287a876848d4d27d2691520a5) |

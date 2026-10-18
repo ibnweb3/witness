@@ -163,38 +163,31 @@ applyBlur()
 
 const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches
 
-/** The big homepage card as an autoplaying news slideshow. Pauses on hover, focus, when off-screen or when the tab is hidden,
- *  has previous/next, dots and an explicit pause button, and does not autoplay for people who prefer reduced motion. */
+/** The big homepage card as an autoplaying news slideshow, with no control buttons: only small progress dots (not interactive).
+ *  It pauses while the pointer or keyboard focus is on it, when it is off-screen or the tab is hidden, and it does not
+ *  autoplay for people who prefer reduced motion. */
 function slideshow(slides: Entity[], st: (r: Entity) => Status) {
   const root = h('div', { class: 'slides hero', role: 'region', 'aria-roledescription': 'carousel', 'aria-label': 'Latest news' })
   const cards = slides.map(r => { const c = card(r, st(r), 'hero'); c.classList.add('slide'); return c })
-  let idx = 0, userPaused = reduceMotion(), hoverPaused = false, offscreen = false
-  const dots = slides.map((_, i) => h('button', { class: 'dot', type: 'button', 'aria-label': `Show slide ${i + 1} of ${slides.length}`, onclick: () => { go(i); userPaused = true; sync() } }))
-  const pauseBtn = h('button', { class: 'sbtn', type: 'button', onclick: () => { userPaused = !userPaused; sync() } })
-  const prev = h('button', { class: 'sbtn', type: 'button', 'aria-label': 'Previous slide', onclick: () => go(idx - 1) }, '‹')
-  const next = h('button', { class: 'sbtn', type: 'button', 'aria-label': 'Next slide', onclick: () => go(idx + 1) }, '›')
+  const dots = slides.map(() => h('span', { class: 'dot', 'aria-hidden': 'true' }))
+  let idx = 0, paused = reduceMotion(), hoverPaused = false, offscreen = false
   function go(i: number) {
     idx = (i + slides.length) % slides.length
     cards.forEach((c, k) => { c.classList.toggle('active', k === idx); c.setAttribute('aria-hidden', String(k !== idx)); c.tabIndex = k === idx ? 0 : -1 })
-    dots.forEach((d, k) => d.setAttribute('aria-current', String(k === idx)))
+    dots.forEach((d, k) => d.classList.toggle('on', k === idx))
   }
-  function sync() {
-    pauseBtn.textContent = userPaused ? 'Play' : 'Pause'
-    pauseBtn.setAttribute('aria-label', userPaused ? 'Play slideshow' : 'Pause slideshow')
-    root.setAttribute('aria-live', userPaused || hoverPaused ? 'polite' : 'off')
-  }
-  root.append(...cards, h('div', { class: 'sctrl' }, prev, pauseBtn, next), h('div', { class: 'sdots' }, ...dots))
-  root.addEventListener('mouseenter', () => { hoverPaused = true; sync() })
-  root.addEventListener('mouseleave', () => { hoverPaused = false; sync() })
-  root.addEventListener('focusin', () => { hoverPaused = true; sync() })
-  root.addEventListener('focusout', () => { hoverPaused = false; sync() })
+  root.append(...cards, h('div', { class: 'sdots' }, ...dots))
+  root.addEventListener('mouseenter', () => { hoverPaused = true })
+  root.addEventListener('mouseleave', () => { hoverPaused = false })
+  root.addEventListener('focusin', () => { hoverPaused = true })
+  root.addEventListener('focusout', () => { hoverPaused = false })
   new IntersectionObserver(([e]) => { offscreen = !e.isIntersecting }).observe(root)
   const timer = window.setInterval(() => {
     if (!root.isConnected) { clearInterval(timer); return } // the feed was re-rendered: stop this one
-    if (userPaused || hoverPaused || offscreen || document.hidden) return
+    if (paused || hoverPaused || offscreen || document.hidden) return
     go(idx + 1)
   }, 6000)
-  go(0); sync()
+  go(0)
   return root
 }
 
