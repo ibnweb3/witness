@@ -176,7 +176,7 @@ async function feedView() {
   const out = h('div', { 'aria-live': 'polite' })
   show(
     h('h1', { class: 'sr' }, 'Reports'),
-    h('section', { class: 'witness-hero', 'aria-label': 'About WitNess', style: '--wh-img: url("./img/witness-banner.webp")' },
+    h('section', { class: 'witness-hero', 'aria-label': 'About WitNess', style: '--wh-img: url("/img/witness-banner.webp")' },
       h('div', { class: 'wh-copy' },
         h('p', { class: 'wh-kicker' }, 'WitNess · built on Arkiv'),
         h('p', { class: 'wh-title' }, 'A record no one can switch off.'),
