@@ -64,3 +64,18 @@ Sample files on the site: /demo/synthetic-image.png (matches the media report) a
 | review: corroborated → Verified | `0xca750d445f3f9dff03a8d225500e3e9ad21286fdd5c9433a2e40968f82e558e3` | [0x81cb6dbd…](https://tiramisu.explorer.arkiv.network/tx/0x81cb6dbd44970823139a8ee75a19e17b44bc25e48679bcc3a1379fe64f104d9f) |
 
 Sample files on the site: /demo/synthetic-video.webm (4 s test pattern, matches the recorded fingerprint) and /demo/synthetic-video-poster.jpg (the still frame stored in the report).
+
+## Sixth seed: sample news items with sources (posted by the news desk wallet 0xD9a4606f33f2C29F8C2D943Eaf5B35e159154c88)
+
+| What | Entity key | Tx |
+|---|---|---|
+| WHO publishes its first global guidelines on obesity in children and a | `0x4b5713dbbfe598d400f12847ab278e3e6d765f2a92030056bfa22952bb480e32` | [0xb23cb1be…](https://tiramisu.explorer.arkiv.network/tx/0xb23cb1be6e6294163652f0688b88170022732e341375ee1daedede3a07a2c002) |
+| New global roadmap targets high blood pressure in pregnancy | `0x5193dace82c403a82bc8a2b44af39b0f3b093f1d4fd1af701db9ebca51b79e70` | [0x0707c796…](https://tiramisu.explorer.arkiv.network/tx/0x0707c796a9bfca2033b51b19ddcc85db6db57ee7a28a7740f3c9e1bd2f501d12) |
+| WHO urges countries to move from long-stay psychiatric hospitals to co | `0x37ed63646667b9c91ba25f321f2763e46dfe25f630f246d5ba704d9024ade40f` | [0x29058998…](https://tiramisu.explorer.arkiv.network/tx/0x29058998701e428e5509731a5fa3885dc72a0a07635782e3bfa2ebc8a78c797f) |
+| UN chief warns biodiversity protection is off track ahead of COP17 | `0xf253c55c1de7b9361778fc357b89b5b34e1d25995455a62b9e97c2fa8ecaaadb` | [0x5f531f9e…](https://tiramisu.explorer.arkiv.network/tx/0x5f531f9eba0fc09b372c68604bd0383a99e044754b3564e9cc01db90cb285c18) |
+| UN ocean assessment: sea-level rise has doubled and over a third of fi | `0x56ba66ceecf8833ee382a1fcb0ed399ef011627ed2af177d9d6f9f4743c31f95` | [0x3762f57a…](https://tiramisu.explorer.arkiv.network/tx/0x3762f57ab319913365bb385297b98424e78412e2d7a3c628efa295fc7f3ae5fc) |
+| Press freedom group: four more journalists detained in Turkey under th | `0x58d4faac62531ff39493972a35cba1ff2b1b87cdf92da9b43756214843c94ec5` | [0xae8b2a69…](https://tiramisu.explorer.arkiv.network/tx/0xae8b2a69872afbf40f6df2fd1d52ef4496c9d894b8ac4e10ad0a7ae15c66779d) |
+| UN agency warns internet shutdowns are rising worldwide | `0x523aa0c99cc4a1919ab043eefe7db594e49d6927ae67cdae66f6b9bc06730bd3` | [0x00c3ae1c…](https://tiramisu.explorer.arkiv.network/tx/0x00c3ae1c43ad1dca42c1567879fbf8a1032a20676ce0727679e04d63e72d5bdd) |
+| UK reports on its open contracting reforms a year after the Procuremen | `0xf1a814a0f861f7ba2fc2948777b4fd1b6d76c443302b6d1b36f95e90a289aad0` | [0xe3ed88b6…](https://tiramisu.explorer.arkiv.network/tx/0xe3ed88b6af58255d2ab1525b645c69ffcf9f53e1d052cb4689dcdcfd4a4ffcae) |
+| Analysis: UK direct contract awards fell, but few contracts report per | `0x17e7e151d0d3d10c6ec0a019ad3caa648ec9fae098e1f40600f5998a7cfbb7c6` | [0x18ebb8bc…](https://tiramisu.explorer.arkiv.network/tx/0x18ebb8bc5e4a2a0f2bb950d6fb92fa4a7049d1ac975d0a4c12b10d2db92be558) |
+| Security researchers: npm attacks are growing and moving into build pi | `0xc9ee296ced3af349ead8aad8ec94aeb629df812b792b38fcbcea48cffcd73449` | [0xb4d2402f…](https://tiramisu.explorer.arkiv.network/tx/0xb4d2402ff1988354dd2d297cad852eab5c085c1811cac575db60d1cc77c4eec5) |

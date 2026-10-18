@@ -76,7 +76,8 @@ button[disabled] { opacity: .5; cursor: default; transform: none; }
 @media (hover: hover) { button:not([disabled]):not(.icon):hover { opacity: .88; } }
 
 /* category artwork: abstract, decorative, never real imagery */
-.art, .cat-other { --a: #27272f; --b: #6b6b7a; }
+.art { --a: #27272f; --b: #6b6b7a; }
+.cat-other { --a: #3d2a78; --b: #1fa59f; }
 .cat-procurement { --a: #1b2f8a; --b: #4f86f7; }
 .cat-public_safety { --a: #6b1330; --b: #f0634a; }
 .cat-environment { --a: #0b4f4a; --b: #3fbf7f; }
