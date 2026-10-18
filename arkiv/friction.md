@@ -1,7 +1,7 @@
 # Friction report — WitNess
 
 Versions: `@arkiv-network/sdk` 0.8.1, `viem` (see package.json), Node 24, Windows 11. Network: Tiramisu (7738577).
-Entries are written as I build. Each says what I expected, what happened, and how to reproduce.
+Entries are written as I build (F6 was added on the last day, from the demo recording). Each says what I expected, what happened, and how to reproduce.
 
 ## F1. Faucet requires a wallet sign-in; no way to fund a scripted wallet directly
 - Expected: paste an address, receive test GLM (typical faucet).
@@ -42,3 +42,12 @@ Entries are written as I build. Each says what I expected, what happened, and ho
 - Versions: `@arkiv-network/sdk` 0.8.1, public and keyed Tiramisu RPC.
 - Repro: poll an anonymous `arkiv_query` once per second starting a few seconds before the `reset` value returned in a 429 reaches 0, and log the `ratelimit` header on the first rejection.
 - Suggestions: enforce Origin-restricted keys for browser use (or issue browser-scoped keys with a lower cost ceiling), publish the anonymous budget and whether it is shared per IP or globally, and show remaining anonymous budget in response headers.
+
+## F6. A second concurrent WebSocket connection from the same address is refused with HTTP 429 at the handshake
+- Expected: several browser tabs (or a browser plus a test script) to be able to watch events at the same time.
+- Actual: with one WitNess tab already open and connected ("Live" indicator on), a second page opened from the same machine failed its `wss://rpc.tiramisu.db-chain.testnet.arkiv.network/` connection with `WebSocket connection ... failed: Error during WebSocket handshake: Unexpected response code: 429`, and its live indicator stayed on "Reconnecting…". HTTP queries from the same page kept working. The same page recorded zero such errors once the first tab was closed (3 runs with the other tab open: error each time; 1 run after closing it: none).
+- I did not test how many connections are allowed or whether the limit is per IP, per key or per origin, so I make no claim about the limit itself.
+- Versions: `@arkiv-network/sdk` 0.8.1, viem `webSocket()` transport, Chromium (Playwright) beside Chrome, public and keyed Tiramisu RPC.
+- Repro: open any page that calls `watchEntityEvents` over a WebSocket transport in one tab, wait for it to connect, then open the same page in a second tab or headless browser from the same machine and read the console.
+- What I did: nothing is lost (the feed falls back to its normal cached HTTP queries and the indicator shows the state honestly), so the app degrades gracefully; but a visitor with two tabs open sees "Reconnecting…".
+- Suggestions: document the WebSocket connection limit, and return a `Retry-After` or a descriptive body on the 429 handshake response so a client can tell "limit reached" from "node down".
