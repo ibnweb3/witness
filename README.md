@@ -118,6 +118,24 @@ The photograph on the About page, `public/img/endsars-lagos.jpg`, is "Protesters
 [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Protesters_at_the_endSARS_protest_in_Lagos,_Nigeria_71.jpg).
 It is shown unmodified, as background only. It is not evidence of any event described in this project. The MIT licence below covers the code, not this photo.
 
+
+## Picture credits for the sample news items
+
+Each sample news report carries a small picture from Wikimedia Commons, resized and compressed (and stripped of metadata) to fit the 128 KiB payload limit. None is a publisher's photo. Credits (also shown on each report page):
+
+- WHO publishes its first global guidelines on obesity in children and adolescents: "Fresh vegetables,fresh fruits and Gnuts" by Kalungi Nathan, CC BY-SA 4.0, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Fresh_vegetables,fresh_fruits_and_Gnuts.jpg)
+- New global roadmap targets high blood pressure in pregnancy: "Sphygmomanometer&Cuff" by ML5 at English Wikipedia, Public domain, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Sphygmomanometer%26Cuff.JPG)
+- WHO urges countries to move from long-stay psychiatric hospitals to community care: "Path through The Green Community Garden, Penrhys - geograph.org.uk - 4428579" by Jaggery, CC BY-SA 2.0, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Path_through_The_Green_Community_Garden,_Penrhys_-_geograph.org.uk_-_4428579.jpg)
+- UN chief warns biodiversity protection is off track ahead of COP17: "GRNMS - Painted wrasse and sargassum (27626284033)" by National Marine Sanctuaries, Public domain, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:GRNMS_-_Painted_wrasse_and_sargassum_(27626284033).jpg)
+- UN ocean assessment: sea-level rise has doubled and over a third of fish stocks are overfished: "Leigh-on-Sea beach sunset (Unsplash)" by Joshua Fuller joshuafuller, CC0, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Leigh-on-Sea_beach_sunset_(Unsplash).jpg)
+- Press freedom group: four more journalists detained in Turkey under the disinformation law: "Newspaper Cones 2009 (3890107375)" by ElCapitanBSC, CC BY-SA 2.0, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Newspaper_Cones_2009_(3890107375).jpg)
+- UN agency warns internet shutdowns are rising worldwide: "Cable closet bh" by Unknown, Public domain, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Cable_closet_bh.jpg)
+- UK reports on its open contracting reforms a year after the Procurement Act: "Palacio de Westminster, Londres, Inglaterra, 2014-08-07, DD 027" by Diego Delso, CC BY-SA 4.0, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Palacio_de_Westminster,_Londres,_Inglaterra,_2014-08-07,_DD_027.JPG)
+- Analysis: UK direct contract awards fell, but few contracts report performance data: "Legal Contract & Signature - Warm Tones" by Blogtrepreneur, CC BY 2.0, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Legal_Contract_%26_Signature_-_Warm_Tones.jpg)
+- Security researchers: npm attacks are growing and moving into build pipelines: "Padlock klódka ubt" by Tomasz Sienicki, CC BY-SA 3.0, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Padlock_kl%C3%B3dka_ubt.JPG)
+
+Adapted copies (resized and compressed) of the CC BY-SA pictures stay under their original licence; this repository's MIT licence covers the code only.
+
 ## License
 
 MIT (code). See [LICENSE](LICENSE). The photo above keeps its own licence.

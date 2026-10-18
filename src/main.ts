@@ -68,12 +68,14 @@ const groupReviews = (trusted: any[]) => {
 }
 const statusOf = (m: Map<string, ReviewLite[]>, key: string): Status => statusFor(m.get(key) ?? [], new Set(allow)).status
 /** A news source attached to a sample report. Reports are written by strangers, so every field is checked and only an https link is kept. */
-const sourceOf = (x: any): { publisher: string; title: string; url: string; published: string; retrieved: string } | null => {
+const sourceOf = (x: any): { publisher: string; title: string; url: string; published: string; retrieved: string; image: { credit: string; license: string; url: string } | null } | null => {
   if (!x || typeof x !== 'object') return null
   const str = (v: unknown, max: number) => (typeof v === 'string' && v.length > 0 && v.length <= max ? v : null)
   const publisher = str(x.publisher, 80), title = str(x.title, 240), url = typeof x.url === 'string' ? safeHttps(x.url) : null
   if (!publisher || !title || !url) return null
-  return { publisher, title, url, published: str(x.published, 20) ?? '', retrieved: str(x.retrieved, 20) ?? '' }
+  const im = x.image && typeof x.image === 'object' ? x.image : null
+  const image = im && str(im.credit, 220) && str(im.license, 40) && typeof im.url === 'string' && safeHttps(im.url) ? { credit: im.credit as string, license: im.license as string, url: safeHttps(im.url)! } : null
+  return { publisher, title, url, published: str(x.published, 20) ?? '', retrieved: str(x.retrieved, 20) ?? '', image }
 }
 const safeHttps = (u: string) => { try { const x = new URL(u); return x.protocol === 'https:' ? x.href : null } catch { return null } }
 /** The wallet already connected to this page, without prompting. */
@@ -433,6 +435,7 @@ async function detailView(key: `0x${string}`, keyText?: string) {
     h('h2', { style: 'margin-top:0' }, 'Source'),
     h('p', { class: 'lede', style: 'margin:0 0 8px' }, 'This is a sample news item. The summary above was written for this demo in our own words; it is not the article. Read the original at the publisher:'),
     h('p', { style: 'margin:0' }, h('a', { href: src.url, target: '_blank', rel: 'noopener noreferrer nofollow' }, `${src.publisher}: ${src.title}`)),
+    src.image ? h('p', { class: 'meta', style: 'margin:10px 0 0' }, h('span', {}, 'Picture: '), h('a', { href: src.image.url, target: '_blank', rel: 'noopener noreferrer nofollow' }, src.image.credit), h('span', {}, `${src.image.license}, via Wikimedia Commons, resized and compressed`)) : null,
     h('p', { class: 'meta', style: 'margin:8px 0 0' }, src.published ? h('span', {}, 'published ' + src.published) : null, src.retrieved ? h('span', {}, 'read ' + src.retrieved) : null, h('span', {}, 'Summary not verified by reviewers unless the status above says Verified.'))) : null
   const previewBlock = pSrc ? previewCard(pSrc, verdict.status, !!mediaHash, String(av(e, 'media_type') ?? '').startsWith('video/')) : null
   const reviewCard = (r: any, ok: boolean) => h('div', { class: 'card' },

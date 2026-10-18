@@ -1,0 +1,122 @@
+[
+ {
+  "item": 0,
+  "file": "scripts/news-images/01.jpg",
+  "w": 800,
+  "h": 600,
+  "bytes": 50617,
+  "title": "Fresh vegetables,fresh fruits and Gnuts",
+  "author": "Kalungi Nathan",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Fresh_vegetables,fresh_fruits_and_Gnuts.jpg"
+ },
+ {
+  "item": 1,
+  "file": "scripts/news-images/02.jpg",
+  "w": 800,
+  "h": 526,
+  "bytes": 29119,
+  "title": "Sphygmomanometer&Cuff",
+  "author": "ML5 at English Wikipedia",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "page": "https://commons.wikimedia.org/wiki/File:Sphygmomanometer%26Cuff.JPG"
+ },
+ {
+  "item": 2,
+  "file": "scripts/news-images/03.jpg",
+  "w": 800,
+  "h": 774,
+  "bytes": 53524,
+  "title": "Path through The Green Community Garden, Penrhys - geograph.org.uk - 4428579",
+  "author": "Jaggery",
+  "license": "CC BY-SA 2.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Path_through_The_Green_Community_Garden,_Penrhys_-_geograph.org.uk_-_4428579.jpg"
+ },
+ {
+  "item": 3,
+  "file": "scripts/news-images/04.jpg",
+  "w": 800,
+  "h": 494,
+  "bytes": 51366,
+  "title": "GRNMS - Painted wrasse and sargassum (27626284033)",
+  "author": "National Marine Sanctuaries",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "page": "https://commons.wikimedia.org/wiki/File:GRNMS_-_Painted_wrasse_and_sargassum_(27626284033).jpg"
+ },
+ {
+  "item": 4,
+  "file": "scripts/news-images/05.jpg",
+  "w": 800,
+  "h": 534,
+  "bytes": 55836,
+  "title": "Leigh-on-Sea beach sunset (Unsplash)",
+  "author": "Joshua Fuller joshuafuller",
+  "license": "CC0",
+  "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "page": "https://commons.wikimedia.org/wiki/File:Leigh-on-Sea_beach_sunset_(Unsplash).jpg"
+ },
+ {
+  "item": 5,
+  "file": "scripts/news-images/06.jpg",
+  "w": 800,
+  "h": 600,
+  "bytes": 48813,
+  "title": "Newspaper Cones 2009 (3890107375)",
+  "author": "ElCapitanBSC",
+  "license": "CC BY-SA 2.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Newspaper_Cones_2009_(3890107375).jpg"
+ },
+ {
+  "item": 6,
+  "file": "scripts/news-images/07.jpg",
+  "w": 800,
+  "h": 594,
+  "bytes": 50660,
+  "title": "Cable closet bh",
+  "author": "Unknown",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "page": "https://commons.wikimedia.org/wiki/File:Cable_closet_bh.jpg"
+ },
+ {
+  "item": 7,
+  "file": "scripts/news-images/08.jpg",
+  "w": 800,
+  "h": 570,
+  "bytes": 42068,
+  "title": "Palacio de Westminster, Londres, Inglaterra, 2014-08-07, DD 027",
+  "author": "Diego Delso",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Palacio_de_Westminster,_Londres,_Inglaterra,_2014-08-07,_DD_027.JPG"
+ },
+ {
+  "item": 8,
+  "file": "scripts/news-images/09.jpg",
+  "w": 800,
+  "h": 600,
+  "bytes": 43353,
+  "title": "Legal Contract & Signature - Warm Tones",
+  "author": "Blogtrepreneur",
+  "license": "CC BY 2.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Legal_Contract_%26_Signature_-_Warm_Tones.jpg"
+ },
+ {
+  "item": 9,
+  "file": "scripts/news-images/10.jpg",
+  "w": 800,
+  "h": 600,
+  "bytes": 24015,
+  "title": "Padlock kl\u00f3dka ubt",
+  "author": "Tomasz Sienicki",
+  "license": "CC BY-SA 3.0",
+  "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+  "page": "https://commons.wikimedia.org/wiki/File:Padlock_kl%C3%B3dka_ubt.JPG"
+ }
+]

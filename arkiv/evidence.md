@@ -65,7 +65,7 @@ Sample files on the site: /demo/synthetic-image.png (matches the media report) a
 
 Sample files on the site: /demo/synthetic-video.webm (4 s test pattern, matches the recorded fingerprint) and /demo/synthetic-video-poster.jpg (the still frame stored in the report).
 
-## Sixth seed: sample news items with sources (posted by the news desk wallet 0xD9a4606f33f2C29F8C2D943Eaf5B35e159154c88)
+## (Replaced: these entities were deleted and re-posted with pictures) Sixth seed: sample news items with sources (posted by the news desk wallet 0xD9a4606f33f2C29F8C2D943Eaf5B35e159154c88)
 
 | What | Entity key | Tx |
 |---|---|---|
@@ -79,3 +79,18 @@ Sample files on the site: /demo/synthetic-video.webm (4 s test pattern, matches 
 | UK reports on its open contracting reforms a year after the Procuremen | `0xf1a814a0f861f7ba2fc2948777b4fd1b6d76c443302b6d1b36f95e90a289aad0` | [0xe3ed88b6…](https://tiramisu.explorer.arkiv.network/tx/0xe3ed88b6af58255d2ab1525b645c69ffcf9f53e1d052cb4689dcdcfd4a4ffcae) |
 | Analysis: UK direct contract awards fell, but few contracts report per | `0x17e7e151d0d3d10c6ec0a019ad3caa648ec9fae098e1f40600f5998a7cfbb7c6` | [0x18ebb8bc…](https://tiramisu.explorer.arkiv.network/tx/0x18ebb8bc5e4a2a0f2bb950d6fb92fa4a7049d1ac975d0a4c12b10d2db92be558) |
 | Security researchers: npm attacks are growing and moving into build pi | `0xc9ee296ced3af349ead8aad8ec94aeb629df812b792b38fcbcea48cffcd73449` | [0xb4d2402f…](https://tiramisu.explorer.arkiv.network/tx/0xb4d2402ff1988354dd2d297cad852eab5c085c1811cac575db60d1cc77c4eec5) |
+
+## Seventh seed: sample news items with sources and freely licensed pictures (posted by the news desk wallet 0xD9a4606f33f2C29F8C2D943Eaf5B35e159154c88)
+
+| What | Entity key | Tx |
+|---|---|---|
+| WHO publishes its first global guidelines on obesity in children and a | `0x1955c0a3eecd735ab9e2e0bac4010fa90a38ea7fe73fcd82509078d1baeb11df` | [0x35036f12…](https://tiramisu.explorer.arkiv.network/tx/0x35036f12128c41275b906ec8ec44c02ddad93f50294568c3e6962ae0775ca9c2) |
+| New global roadmap targets high blood pressure in pregnancy | `0xc6412594a325132fd1679a9a019d3f9d1abad38ca215b954075924d09e1edb7f` | [0x95f6d90f…](https://tiramisu.explorer.arkiv.network/tx/0x95f6d90f904d3c149fd34fea2eab62a1369f425dc9bff457d98e09fc7b216c2d) |
+| WHO urges countries to move from long-stay psychiatric hospitals to co | `0x3178aed2af3f5bab249be9ec311b6a0b04b9e39f077e759e3747031717b8d164` | [0x233b2339…](https://tiramisu.explorer.arkiv.network/tx/0x233b233961002acafc76ae96e0dd5b5b562b5f385ce17ec882534c77ce8b4ae6) |
+| UN chief warns biodiversity protection is off track ahead of COP17 | `0xacfe4b9e5020ed79721f8aef2516881382585456634cc3b486fe6930f79d1a21` | [0xc949241c…](https://tiramisu.explorer.arkiv.network/tx/0xc949241c20ee4ac189dfc03c7c4671444cd1edeb190ebbde95d8303a8122f2b8) |
+| UN ocean assessment: sea-level rise has doubled and over a third of fi | `0x4aaf34adc477149f09458fd8fa4bb39d5b2fa3d663f5e5bdc8b645a5b1d4b55e` | [0xabfbc21d…](https://tiramisu.explorer.arkiv.network/tx/0xabfbc21d10bc79a3177355327354b77d077f7cbf3e4174efb1fc21e5a168e434) |
+| Press freedom group: four more journalists detained in Turkey under th | `0xbffae0cf9448aa2721a2c54c2c9457216fee51cf72b55286fc3e30d92d0c40fc` | [0x26c9283e…](https://tiramisu.explorer.arkiv.network/tx/0x26c9283e3e0a328b93bc511955f1bdc3d3beeb253a5758f47bc5b9d036be3f6b) |
+| UN agency warns internet shutdowns are rising worldwide | `0x63cf5652e546e0a626dbe4d5e0ccbe2aee0c189ccaa307f5ee3269bb6560d29e` | [0xa4d8495b…](https://tiramisu.explorer.arkiv.network/tx/0xa4d8495b8b8ab94a6bbe685f5151a8bced789e8a99b65c2e9033171f0471b383) |
+| UK reports on its open contracting reforms a year after the Procuremen | `0x945a85a96fb3c9c7685e11a8175b0edd270fcdd811221733d2e291737304b856` | [0x4ff73ef6…](https://tiramisu.explorer.arkiv.network/tx/0x4ff73ef6adea8de27a7042836326778478c9aba6fe5fade1ce5df68a6eaa4b87) |
+| Analysis: UK direct contract awards fell, but few contracts report per | `0xf768597a326db1f22789169e8a91c7d6f3b06763c05416ff79413138b5c5206d` | [0xec3937bd…](https://tiramisu.explorer.arkiv.network/tx/0xec3937bd76a31676c453c08a8ab106b3fc9fa42596b4be9ff7a9d9b42387fbff) |
+| Security researchers: npm attacks are growing and moving into build pi | `0xe8d717a902023086d57e1b4a8302d8bad8179071603e98edd98205460eacbaf6` | [0xbbab5981…](https://tiramisu.explorer.arkiv.network/tx/0xbbab5981cf5c46b0b703b7e8b4b9aab9efd7b3f2c5a19959e1688407259a9af6) |
