@@ -2,7 +2,7 @@
 
 Network: Tiramisu testnet, chain ID 7738577. SDK: `@arkiv-network/sdk` 0.8.1.
 Every entity carries `project = "witness-reg-ibn26"` so queries never mix with other apps' data.
-**All data in this deployment is synthetic.** No real people, places, footage or personal data.
+**Demo data is synthetic, or short sample news summaries** (written for this demo, no private individuals named, no news photos) that carry their original source in the payload. No real personal data.
 
 ## Wallet roles
 | Role | Purpose | Creates |
@@ -32,7 +32,7 @@ Optional "seal": ownership is moved to a burn address in the same batch, so nobo
 | media_type | str | optional: MIME type of that file, e.g. `image/png` |
 | media_url | str | optional: https link to where the author hosts the file (up to 128 bytes). Never loaded automatically: a reader can click to load an image, or to play a video (MP4 or WebM) |
 
-Payload (`application/json`, <= 128 KiB): `{v:1, sealed:false, title, body, preview?}` or `{v:1, sealed:true, iv, ct}`. The optional `preview` is `{type: image/jpeg|png|webp, b64, w, h}`: a small copy of an attached image (about 60 KB, re-drawn in the browser so location data is dropped), or, for an attached video, one still frame taken in the browser. It is stored with the report; the video itself never is. The Arkiv team confirmed that putting a photo in the payload is allowed. For an encrypted report the preview is inside the ciphertext. The app renders a preview only if it is a plain raster image in plain base64. On the homepage a preview is sharp only once the report is Verified and blurred (and labelled) while it is unverified; on the report page an unverified preview is blurred until the reader clicks, and a disputed report's preview is hidden until asked for and carries a warning (AES-GCM, key never leaves the browser; shared in a URL fragment).
+Payload (`application/json`, <= 128 KiB): `{v:1, sealed:false, title, body, preview?, source?}` or `{v:1, sealed:true, iv, ct}`. The optional `source` is `{publisher, title, url, published, retrieved}` for a sample news item: only an `https` link is kept and it is shown as a link on the report page; the summary in `body` is our own wording, not the article. The optional `preview` is `{type: image/jpeg|png|webp, b64, w, h}`: a small copy of an attached image (about 60 KB, re-drawn in the browser so location data is dropped), or, for an attached video, one still frame taken in the browser. It is stored with the report; the video itself never is. The Arkiv team confirmed that putting a photo in the payload is allowed. For an encrypted report the preview is inside the ciphertext. The app renders a preview only if it is a plain raster image in plain base64. On the homepage a preview is sharp only once the report is Verified and blurred (and labelled) while it is unverified; on the report page an unverified preview is blurred until the reader clicks, and a disputed report's preview is hidden until asked for and carries a warning (AES-GCM, key never leaves the browser; shared in a URL fragment).
 Expiration: 30 days, extended by anyone (Lifetime Extension).
 
 ### `review`

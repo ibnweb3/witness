@@ -33,7 +33,7 @@ const dateStr = (ms: number) => new Date(ms).toISOString().slice(0, 10)
 const addrLink = (a: string) => h('a', { href: `${EXPLORER}/address/${a}`, target: '_blank', rel: 'noopener' }, h('code', {}, short(a)))
 const txLink = (tx: string, label = 'View transaction') => h('a', { href: `${EXPLORER}/tx/${tx}`, target: '_blank', rel: 'noopener' }, label)
 const CATEGORIES = ['procurement', 'public_safety', 'environment', 'public_health', 'other']
-const REGIONS = ['zone-north', 'zone-south', 'zone-east', 'zone-west']
+const REGIONS = ['zone-north', 'zone-south', 'zone-east', 'zone-west', 'global', 'europe']
 
 // ---------- shared chain state ----------
 let head = 0n
@@ -67,6 +67,14 @@ const groupReviews = (trusted: any[]) => {
   return m
 }
 const statusOf = (m: Map<string, ReviewLite[]>, key: string): Status => statusFor(m.get(key) ?? [], new Set(allow)).status
+/** A news source attached to a sample report. Reports are written by strangers, so every field is checked and only an https link is kept. */
+const sourceOf = (x: any): { publisher: string; title: string; url: string; published: string; retrieved: string } | null => {
+  if (!x || typeof x !== 'object') return null
+  const str = (v: unknown, max: number) => (typeof v === 'string' && v.length > 0 && v.length <= max ? v : null)
+  const publisher = str(x.publisher, 80), title = str(x.title, 240), url = typeof x.url === 'string' ? safeHttps(x.url) : null
+  if (!publisher || !title || !url) return null
+  return { publisher, title, url, published: str(x.published, 20) ?? '', retrieved: str(x.retrieved, 20) ?? '' }
+}
 const safeHttps = (u: string) => { try { const x = new URL(u); return x.protocol === 'https:' ? x.href : null } catch { return null } }
 /** The wallet already connected to this page, without prompting. */
 const connectedAddress = async (): Promise<string | null> => {
@@ -134,6 +142,7 @@ function card(r: Entity, st: Status, size: 'hero' | 'mid' | 'small') {
         isLocked(r) && h('span', { class: 'badge' }, 'locked'),
         h('span', { class: `badge ${STATUS_CLASS[st]}` }, STATUS_TEXT[st]),
         img && !clear ? h('span', { class: 'badge' }, 'image blurred until verified') : null,
+        sourceOf(decode(r)?.source) ? h('span', { class: 'badge' }, 'News · ' + sourceOf(decode(r)?.source)!.publisher.slice(0, 26)) : null,
         av(r, 'media_hash') ? h('span', { class: 'badge' }, 'file fingerprint') : null),
       h('span', { class: 'by' }, `By ${short(r.creator as string)} / ${dateStr(Number(av(r, 'incident_ms')))} / ${expiresIn(r.expiresAt as bigint)}`)))
   if (img && clear) { el.style.backgroundImage = `url("${img}")`; el.style.backgroundSize = 'cover'; el.style.backgroundPosition = 'center' }
@@ -165,7 +174,9 @@ async function feedView() {
   const out = h('div', { 'aria-live': 'polite' })
   show(
     h('h1', { class: 'sr' }, 'Reports'),
-    h('p', { class: 'tagline' }, 'A record no one can switch off. Reports are frozen when posted and read straight from the network. A review counts only when its on-chain creator is a reviewer wallet.'),
+    h('section', { class: 'witness-hero', 'aria-label': 'About WitNess' },
+      h('p', { class: 'wh-title' }, 'A record no one can switch off.'),
+      h('p', { class: 'wh-sub' }, 'Reports are frozen when posted and read straight from the network. A report counts as verified only when reviewers on a public list vouch for it, and a review from anyone else is ignored.')),
     h('details', { class: 'filterbar', open: active }, h('summary', {}, active ? 'Filters (active)' : 'Filters'), form, active ? h('a', { href: '#/' }, 'Clear filters') : null),
     out)
 
@@ -385,12 +396,12 @@ async function detailView(key: `0x${string}`, keyText?: string) {
     return
   }
   const p = decode(e); const sealed = !!p?.sealed
-  let title = p?.title ?? 'Untitled', body: string = p?.body ?? '', preview: unknown = p?.preview
+  let title = p?.title ?? 'Untitled', body: string = p?.body ?? '', preview: unknown = p?.preview, source: unknown = p?.source
   let keyPrompt: Node | null = null
   if (sealed) {
     title = 'Sealed report'; body = ''
     if (keyText) {
-      try { const o = await openSealed(p, await importKey(keyText)); title = o.title; body = o.body; preview = o.preview } catch { body = 'Could not decrypt: the key is wrong.' }
+      try { const o = await openSealed(p, await importKey(keyText)); title = o.title; body = o.body; preview = o.preview; source = o.source } catch { body = 'Could not decrypt: the key is wrong.' }
     } else {
       const input = h('input', { name: 'k', type: 'text', placeholder: 'Decryption key', autocomplete: 'off', spellcheck: false, required: true })
       keyPrompt = h('form', { class: 'row', onsubmit: (ev: Event) => { ev.preventDefault(); location.hash = `#/r/${key}/${encodeURIComponent(input.value.trim())}` } },
@@ -417,6 +428,12 @@ async function detailView(key: `0x${string}`, keyText?: string) {
   const mediaUrl = av(e, 'media_url') ? safeHttps(String(av(e, 'media_url'))) : null
   const mediaBlock = mediaHash ? mediaCard(mediaHash, String(av(e, 'media_type') ?? 'unknown'), mediaUrl) : null
   const pSrc = previewSrc(preview)
+  const src = sourceOf(source)
+  const sourceBlock = src ? h('div', { class: 'card' },
+    h('h2', { style: 'margin-top:0' }, 'Source'),
+    h('p', { class: 'lede', style: 'margin:0 0 8px' }, 'This is a sample news item. The summary above was written for this demo in our own words; it is not the article. Read the original at the publisher:'),
+    h('p', { style: 'margin:0' }, h('a', { href: src.url, target: '_blank', rel: 'noopener noreferrer nofollow' }, `${src.publisher}: ${src.title}`)),
+    h('p', { class: 'meta', style: 'margin:8px 0 0' }, src.published ? h('span', {}, 'published ' + src.published) : null, src.retrieved ? h('span', {}, 'read ' + src.retrieved) : null, h('span', {}, 'Summary not verified by reviewers unless the status above says Verified.'))) : null
   const previewBlock = pSrc ? previewCard(pSrc, verdict.status, !!mediaHash, String(av(e, 'media_type') ?? '').startsWith('video/')) : null
   const reviewCard = (r: any, ok: boolean) => h('div', { class: 'card' },
     h('div', { class: 'row' }, h('span', { class: `chip ${ok ? 'ok' : 'bad'}` }, String(av(r, 'verdict')).replace('_', ' ')), 'by ', addrLink(r.creator as string),
@@ -430,6 +447,7 @@ async function detailView(key: `0x${string}`, keyText?: string) {
     h('div', { class: `status ${verdict.status}` }, h('span', { class: 'big' }, STATUS_TEXT[verdict.status]),
       h('p', {}, STATUS_EXPLAIN[verdict.status], ` (${verdict.corroborated} corroborate, ${verdict.disputed} dispute, from ${verdict.reviewers} allowlisted reviewer${verdict.reviewers === 1 ? '' : 's'}.)`)),
     keyPrompt, body ? h('div', { class: 'card pre' }, body) : null,
+    sourceBlock,
     previewBlock,
     mediaBlock,
     h('h2', {}, 'Why you can trust what you see'),
@@ -587,7 +605,7 @@ async function aboutView() {
       h('li', {}, 'A review counts only when its on-chain creator is a reviewer wallet, never because a field says “verified”.'),
       h('li', {}, 'Reads go straight from your browser to the network, with no server of ours in the path.')),
     h('p', {}, 'It does not make anyone anonymous and it does not prove a report is true. The limits are listed on the ', h('a', { href: '#/proof' }, 'Proof page'), '.'),
-    h('p', { class: 'meta' }, 'Every report on this site is synthetic demo data.')))
+    h('p', { class: 'meta' }, 'Reports here are synthetic test data, or short sample news summaries written for this demo with a link to the original source. Nothing is verified unless it says Verified.')))
 }
 
 async function profileView(address: string) {

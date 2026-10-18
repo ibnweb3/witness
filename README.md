@@ -3,8 +3,8 @@
 A public registry for documentation that no single server can switch off or quietly rewrite.
 Built for the **Arkiv: Global Tour Stop** (Censorship Resistance track), on the Arkiv **Tiramisu** testnet.
 
-> **All data in this project is synthetic.** No real people, places, footage or personal data are stored.
-> Everything on Arkiv is public, so please do not post real incidents to this demo.
+> **The demo reports are either synthetic test data, or short sample news summaries.** The news summaries are written for this demo in our own words, name no private individuals, use no photos from news sites, and each links to its original source. Nothing is verified unless it says Verified.
+> Everything on Arkiv is public, so please do not post real incidents or personal data to this demo.
 
 **Live demo:** https://witness.ibnweb3lab.workers.dev · **Code:** https://github.com/ibnweb3/witness
 
@@ -90,8 +90,9 @@ Posting from the site uses a browser wallet (for example MetaMask), which it swi
 3. Open a report that has reviews. The page lists trusted reviews, and any review from a non-allowlisted creator under "ignored", with the reason.
 4. Compare the wallet addresses in [`arkiv/evidence.md`](arkiv/evidence.md) with the creators shown on the explorer: https://tiramisu.explorer.arkiv.network
 5. Open the report titled "Synthetic: sample photo with a fingerprint", download `/demo/synthetic-image.png`, and use **Check a file** to see a match. Then try `/demo/synthetic-image-tampered.png` to see the mismatch.
-6. Open the first report in the list to see a **Verified** status (two reviewers), and "Synthetic: road closure log" for **Disputed**.
-7. Optional, needs a wallet with test GLM: press **Keep this alive** on any report, or post a new one.
+6. Open "Synthetic: inflated contract notice" to see a **Verified** status (two reviewers), and "Synthetic: road closure log" for **Disputed**.
+7. Open any report tagged "News" (for example the WHO or UN News items): its page has a **Source** card linking to the publisher. Those items are Unverified.
+8. Optional, needs a wallet with test GLM: press **Keep this alive** on any report, or post a new one.
 
 ## Project layout
 
@@ -101,7 +102,7 @@ src/lib/write.ts    create report / review / reviewer, extend (write side)
 src/lib/crypto.ts   browser AES-GCM sealing and SHA-256
 src/lib/wallet.ts   injected wallet connection, switches to Tiramisu
 src/main.ts         pages: feed, report, post, proof
-scripts/seed.ts     synthetic data and the on-chain evidence file
+scripts/seed*.ts    synthetic data, and seed-news.ts + news.json for the sample news items; all write arkiv/evidence.md
 arkiv/              schema.md, friction.md, evidence.md
 ```
 
