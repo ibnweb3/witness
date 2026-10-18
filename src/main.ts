@@ -176,7 +176,7 @@ async function feedView() {
   const out = h('div', { 'aria-live': 'polite' })
   show(
     h('h1', { class: 'sr' }, 'Reports'),
-    h('section', { class: 'witness-hero', 'aria-label': 'About WitNess' },
+    h('section', { class: 'witness-hero', 'aria-label': 'About WitNess', style: '--wh-img: url("./img/witness-banner.webp")' },
       h('div', { class: 'wh-copy' },
         h('p', { class: 'wh-kicker' }, 'WitNess · built on Arkiv'),
         h('p', { class: 'wh-title' }, 'A record no one can switch off.'),
@@ -185,9 +185,8 @@ async function feedView() {
           h('li', {}, h('b', {}, 'Frozen when posted.'), ' Nobody can edit a report afterward.'),
           h('li', {}, h('b', {}, 'Vouched for in public.'), ' Two reviewers from an open list must agree.'),
           h('li', {}, h('b', {}, 'Read from the chain.'), ' No server of ours sits in the path.'))),
-      h('figure', { class: 'wh-fig' },
-        h('img', { class: 'wh-photo', src: './img/witness-bg.jpg', width: 408, height: 612, decoding: 'async', alt: 'A man raising his right hand and swearing an oath as a witness in a courtroom' }),
-        h('figcaption', {}, 'The oath is spoken. The record keeps it.'))),
+      h('p', { class: 'wh-caption' }, 'The oath is spoken. The record keeps it.'),
+      h('span', { class: 'sr' }, 'Illustration: a silhouetted witness raising a hand to take an oath at a witness stand.')),
     h('details', { class: 'filterbar', open: active }, h('summary', {}, active ? 'Filters (active)' : 'Filters'), form, active ? h('a', { href: '#/' }, 'Clear filters') : null),
     out)
 

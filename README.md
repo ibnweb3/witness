@@ -110,6 +110,7 @@ arkiv/              schema.md, friction.md, evidence.md
 
 - Built between 9 and 18 October 2026. Pre-existing work reused: none (libraries only: `@arkiv-network/sdk`, `viem`, `vite`).
 - AI assistance: built with Claude (Anthropic) in Claude Code.
+- The homepage banner illustration (`public/img/witness-banner.webp`) was generated with Grok (xAI) from our own prompt: a silhouetted figure raising a hand at a witness stand. It shows no real person.
 
 ## Photo credit
 
