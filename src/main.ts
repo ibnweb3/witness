@@ -177,8 +177,17 @@ async function feedView() {
   show(
     h('h1', { class: 'sr' }, 'Reports'),
     h('section', { class: 'witness-hero', 'aria-label': 'About WitNess' },
-      h('p', { class: 'wh-title' }, 'A record no one can switch off.'),
-      h('p', { class: 'wh-sub' }, 'Reports are frozen when posted and read straight from the network. A report counts as verified only when reviewers on a public list vouch for it, and a review from anyone else is ignored.')),
+      h('div', { class: 'wh-copy' },
+        h('p', { class: 'wh-kicker' }, 'WitNess · built on Arkiv'),
+        h('p', { class: 'wh-title' }, 'A record no one can switch off.'),
+        h('p', { class: 'wh-sub' }, 'Reports are frozen when posted and read straight from the network. A report counts as verified only when reviewers on a public list vouch for it, and a review from anyone else is ignored.'),
+        h('ul', { class: 'wh-points' },
+          h('li', {}, h('b', {}, 'Frozen when posted.'), ' Nobody can edit a report afterward.'),
+          h('li', {}, h('b', {}, 'Vouched for in public.'), ' Two reviewers from an open list must agree.'),
+          h('li', {}, h('b', {}, 'Read from the chain.'), ' No server of ours sits in the path.'))),
+      h('figure', { class: 'wh-fig' },
+        h('img', { class: 'wh-photo', src: './img/witness-bg.jpg', width: 408, height: 612, decoding: 'async', alt: 'A man raising his right hand and swearing an oath as a witness in a courtroom' }),
+        h('figcaption', {}, 'The oath is spoken. The record keeps it.'))),
     h('details', { class: 'filterbar', open: active }, h('summary', {}, active ? 'Filters (active)' : 'Filters'), form, active ? h('a', { href: '#/' }, 'Clear filters') : null),
     out)
 
